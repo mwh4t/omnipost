@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniPost - Автоматизированная система постинга</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .social-network {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .status-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+            min-height: 100px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .platform-selector {
+            margin-bottom: 15px;
+        }
+
+        .platform-chip {
+            display: inline-block;
+            padding: 8px 15px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            background: #f0f0f0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">OmniPost</div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_posts }}</div>
+                <div class="stat-label">Всего постов</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.scheduled }}</div>
+                <div class="stat-label">Запланировано</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.published_today }}</div>
+                <div class="stat-label">Опубликовано сегодня</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div>
+                <div class="card">
+                    <h2 class="card-title">Социальные сети</h2>
+                    {% for network in social_networks %}
+                    <div class="social-network">
+                        {{ network.name }}
+                        {% if network.connected %}
+                        <span class="status-badge status-connected">Подключено</span>
+                        {% else %}
+                        <span class="status-badge status-disconnected">Не подключено</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div>
+                <div class="card">
+                    <h2 class="card-title">Создать пост</h2>
+                    <form>
+                        <div>
+                            <label>Текст поста</label>
+                            <textarea placeholder="Введите текст..."></textarea>
+                        </div>
+
+                        <div class="platform-selector">
+                            <label>Платформы:</label><br>
+                            <span class="platform-chip">VK</span>
+                            <span class="platform-chip">Telegram</span>
+                        </div>
+
+                        <button type="button" class="btn btn-primary">Опубликовать</button>
+                        <button type="button" class="btn">Запланировать</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">Недавние посты</h2>
+                    {% if recent_posts %}
+                        {% for post in recent_posts %}
+                        <div class="post-item">
+                            {{ post.text }}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="empty-state">
+                        Нет постов для отображения
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // кнопка опубликовать
+            document.querySelector('.btn-primary').addEventListener('click', function() {
+                alert('Функция публикации постов ещё не реализована');
+            });
+
+            // кнопка запланировать
+            document.querySelectorAll('.btn:not(.btn-primary)')[0].addEventListener('click', function() {
+                alert('Функция планирования постов ещё не реализована');
+            });
+        });
+    </script>
+</body>
+</html>
