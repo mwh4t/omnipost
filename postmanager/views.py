@@ -14,3 +14,6 @@ def home(request):
         }
     }
     return render(request, 'home.html', context)
+
+def auth_view(request):
+    return render(request, 'auth.html')
