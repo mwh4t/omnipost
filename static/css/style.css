@@ -1,0 +1,183 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background: #ffffff;
+    color: #000000;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* header */
+header {
+    background: #000000;
+    color: #ffffff;
+    padding: 20px 40px;
+    border-bottom: 4px solid #000000;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: bold;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+/* main контент */
+.container {
+    flex: 1;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* соц. сети */
+.social-section {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    justify-content: center;
+}
+
+.social-card {
+    background: #ffffff;
+    border: 3px solid #000000;
+    padding: 15px 30px;
+    min-width: 200px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.social-card:hover {
+    background: #000000;
+    color: #ffffff;
+}
+
+.social-name {
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.social-status {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status-connected {
+    color: #000000;
+}
+
+.social-card:hover .status-connected {
+    color: #ffffff;
+}
+
+.status-disconnected {
+    color: #999999;
+}
+
+/* поле ввода */
+.editor-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.editor-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border: 4px solid #000000;
+    background: #ffffff;
+    min-height: 300px;
+}
+
+textarea {
+    flex: 1;
+    width: 100%;
+    padding: 30px;
+    border: none;
+    background: #ffffff;
+    color: #000000;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+    resize: none;
+    outline: none;
+}
+
+textarea::placeholder {
+    color: #cccccc;
+}
+
+/* прикрепление файлов */
+.attachment-bar {
+    border-top: 3px solid #000000;
+    padding: 15px 30px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.attach-btn {
+    background: #ffffff;
+    border: 3px solid #000000;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    text-transform: uppercase;
+    /*font-weight: bold;*/
+    transition: all 0.2s;
+}
+
+.attach-btn:hover {
+    background: #000000;
+    color: #ffffff;
+}
+
+.file-input {
+    display: none;
+}
+
+.file-name {
+    color: #666666;
+    font-size: 14px;
+}
+
+/* опубликовать */
+.publish-section {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.btn-publish {
+    background: #000000;
+    color: #ffffff;
+    border: 4px solid #000000;
+    padding: 20px 80px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-publish:hover {
+    background: #ffffff;
+    color: #000000;
+}
