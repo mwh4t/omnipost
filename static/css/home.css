@@ -13,7 +13,7 @@ body {
     flex-direction: column;
 }
 
-/* header */
+/* Header */
 header {
     background: #000000;
     color: #ffffff;
@@ -28,7 +28,7 @@ header {
     text-transform: uppercase;
 }
 
-/* main контент */
+/* Main Content */
 .container {
     flex: 1;
     max-width: 1400px;
@@ -39,7 +39,7 @@ header {
     flex-direction: column;
 }
 
-/* соц. сети */
+/* Social Networks Section */
 .social-section {
     display: flex;
     gap: 20px;
@@ -87,7 +87,7 @@ header {
     color: #999999;
 }
 
-/* поле ввода */
+/* Post Editor Section */
 .editor-section {
     flex: 1;
     display: flex;
@@ -121,7 +121,7 @@ textarea::placeholder {
     color: #cccccc;
 }
 
-/* прикрепление файлов */
+/* File Attachment */
 .attachment-bar {
     border-top: 3px solid #000000;
     padding: 15px 30px;
@@ -156,7 +156,7 @@ textarea::placeholder {
     font-size: 14px;
 }
 
-/* опубликовать */
+/* Publish Button */
 .publish-section {
     display: flex;
     justify-content: center;

@@ -1,152 +1,22 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-    <title>Вход - OmniPost</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Courier New', Courier, monospace;
-            background: #ffffff;
-            color: #000000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .login-container {
-            background: #ffffff;
-            padding: 50px 40px;
-            border: 3px solid #000000;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .logo h1 {
-            color: #000000;
-            font-size: 32px;
-            margin-bottom: 5px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
-
-        .logo p {
-            color: #666666;
-            font-size: 14px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            display: block;
-            color: #000000;
-            font-weight: bold;
-            margin-bottom: 8px;
-            font-size: 14px;
-            text-transform: uppercase;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 14px;
-            border: 3px solid #000000;
-            background: #ffffff;
-            color: #000000;
-            font-size: 15px;
-            font-family: 'Courier New', Courier, monospace;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            background: #f0f0f0;
-            border-color: #000000;
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 14px;
-            background: #000000;
-            color: #ffffff;
-            border: 3px solid #000000;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            font-family: 'Courier New', Courier, monospace;
-            text-transform: uppercase;
-        }
-
-        .btn-login:hover {
-            background: #ffffff;
-            color: #000000;
-        }
-
-        .btn-login:active {
-            background: #cccccc;
-        }
-
-        .divider {
-            text-align: center;
-            margin: 25px 0;
-            color: #666666;
-            font-size: 14px;
-        }
-
-        .google-btn {
-            width: 100%;
-            padding: 14px;
-            background: #ffffff;
-            border: 3px solid #000000;
-            color: #000000;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-family: 'Courier New', Courier, monospace;
-            text-transform: uppercase;
-        }
-
-        .google-btn:hover {
-            background: #000000;
-            color: #ffffff;
-        }
-
-        .error-message {
-            background: #ffffff;
-            color: #000000;
-            padding: 12px;
-            border: 3px solid #000000;
-            margin-bottom: 20px;
-            font-size: 14px;
-            text-align: center;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - OmniPost</title>
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
 </head>
 <body>
 <div class="login-container">
     <div class="logo">
         <h1>OmniPost</h1>
-        <p>Управление постами в соцсетях</p>
+        <p>Social Media Post Management</p>
     </div>
 
-    <!-- TODO: интегрировать ошибки с firebase -->
+    <!-- TODO: integrate errors with firebase -->
     <div id="error-message" class="error-message" style="display: none;">
-        Ошибка входа
+        Login Error
     </div>
 
     <form id="loginForm">
@@ -156,22 +26,22 @@
         </div>
 
         <div class="input-group">
-            <label>Пароль</label>
+            <label>Password</label>
             <input type="password" id="password" required>
         </div>
 
-        <button type="submit" class="btn-login">Войти</button>
+        <button type="submit" class="btn-login">Login</button>
     </form>
 
-    <div class="divider">или</div>
+    <div class="divider">or</div>
 
     <button class="google-btn" id="googleBtn">
         <img src="{% static 'images/google-icon.png' %}" alt="Google" style="width: 20px; height: 20px;">
-        Войти через Google
+        Login with Google
     </button>
 </div>
 
-<!-- TODO: интегрировать firebase -->
+<!-- TODO: integrate firebase -->
 
 </body>
 </html>
