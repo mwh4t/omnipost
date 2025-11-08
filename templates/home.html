@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -255,12 +256,14 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // опубликовать
-            document.querySelector('.btn-primary').addEventListener('click', function() {
+            document.querySelector('.btn-primary')
+                .addEventListener('click', function() {
                 alert('Функция публикации постов ещё не реализована');
             });
 
             // запланировать
-            document.querySelectorAll('.btn:not(.btn-primary)')[0].addEventListener('click', function() {
+            document.querySelectorAll('.btn:not(.btn-primary)')[0]
+                .addEventListener('click', function() {
                 alert('Функция планирования постов ещё не реализована');
             });
         });
