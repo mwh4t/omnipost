@@ -5,27 +5,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OmniPost</title>
+    <link rel="icon" type="image/png" href="{% static 'images/logo-white.png' %}">
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
 </head>
 <body>
 <header>
-    <div class="logo">OmniPost</div>
+    <img src="{% static 'images/logo-white.png' %}" alt="logo" style="width: 80px; height: 80px;">
 </header>
 
 <div class="container">
-    <!-- Social Networks -->
     <div class="social-section">
         <div class="social-card">
+            <img src="{% static 'images/vk-icon.png' %}" alt="VK" class="social-icon"
+                 style="width: 20px; height: 20px;">
             <div class="social-name">VK</div>
             <div class="social-status status-disconnected">Click to Connect</div>
         </div>
         <div class="social-card">
+            <img src="{% static 'images/tg-icon.png' %}" alt="Telegram" class="social-icon"
+                 style="width: 20px; height: 20px;">
             <div class="social-name">Telegram</div>
             <div class="social-status status-disconnected">Click to Connect</div>
         </div>
     </div>
 
-    <!-- Post Editor -->
     <div class="editor-section">
         <div class="editor-wrapper">
             <textarea id="postText" placeholder="Write your post here..."></textarea>
@@ -41,7 +44,6 @@
         </div>
     </div>
 
-    <!-- Publish Button -->
     <div class="publish-section">
         <button type="button" class="btn-publish" id="publishBtn">Publish</button>
     </div>
