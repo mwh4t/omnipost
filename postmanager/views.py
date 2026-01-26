@@ -24,11 +24,6 @@ def home(request):
     return render(request, 'home.html', context)
 
 
-# страница авторизации
-def auth_view(request):
-    error = request.GET.get('error')
-    return render(request, 'auth.html', {'error': error})
-
 
 # авторизация/регистрация через email и пароль
 def email_auth(request):

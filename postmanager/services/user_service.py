@@ -1,4 +1,3 @@
-# сервис для работы с пользователями в firestore
 from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 from .firebase_service import FirebaseService
 

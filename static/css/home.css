@@ -47,6 +47,103 @@ header {
     border-color: #ffffff;
 }
 
+/* кнопка профиля */
+.btn-profile {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-profile:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-profile img {
+    filter: brightness(0) invert(1);
+}
+
+/* модальное окно профиля (авторизован) */
+.modal-profile {
+    max-width: 350px;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+}
+
+.profile-email {
+    font-size: 16px;
+    font-weight: bold;
+    color: #000000;
+    word-break: break-all;
+    text-align: center;
+}
+
+.btn-logout {
+    width: 100%;
+    padding: 14px;
+    background: #000000;
+    color: #ffffff;
+    border: 3px solid #000000;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: 'Courier New', Courier, monospace;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+    box-sizing: border-box;
+    display: block;
+}
+
+.btn-logout:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+/* кнопки соцсетей в профиле */
+.profile-socials {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.social-login-btn {
+    width: 50px;
+    height: 50px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    background: none;
+    padding: 0;
+}
+
+.social-login-btn img {
+    width: 50px;
+    height: 50px;
+}
+
+.social-login-btn:hover {
+    opacity: 0.7;
+}
+
 /* инфо о пользователе */
 .user-info {
     display: flex;

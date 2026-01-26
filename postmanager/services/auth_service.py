@@ -1,4 +1,3 @@
-# сервис авторизации через firebase
 import requests
 from dataclasses import dataclass
 from decouple import config

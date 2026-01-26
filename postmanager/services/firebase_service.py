@@ -1,4 +1,3 @@
-# сервис для работы с firebase admin sdk
 import firebase_admin
 from firebase_admin import credentials, auth, firestore
 from decouple import config
