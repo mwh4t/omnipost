@@ -404,3 +404,16 @@ poetry.toml
 
 # LSP config files
 pyrightconfig.json
+
+
+### Firebase ###
+.idea
+**/node_modules/*
+**/.firebaserc
+firebase-service-account.json
+*-firebase-adminsdk-*.json
+serviceAccountKey.json
+
+### Firebase Patch ###
+.runtimeconfig.json
+.firebase/

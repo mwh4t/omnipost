@@ -10,7 +10,10 @@
 </head>
 <body>
 <header>
-    <img src="{% static 'images/logo-white.png' %}" alt="logo" style="width: 80px; height: 80px;">
+    <div class="header-content">
+        <img src="{% static 'images/logo-white.png' %}" alt="logo" style="width: 80px; height: 80px;">
+        <button class="btn-login-header" id="openAuthModal">Login</button>
+    </div>
 </header>
 
 <div class="container">
@@ -49,6 +52,43 @@
     </div>
 </div>
 
+<!-- модальное окно авторизации -->
+<div id="authModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" id="closeModal">&times;</span>
+
+        <div class="modal-logo">
+            <h1>OmniPost</h1>
+            <p>Social Media Post Management</p>
+        </div>
+
+        <div id="error-message" class="error-message" style="display: none;">
+            Login Error
+        </div>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="email" required>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" required>
+            </div>
+
+            <button type="submit" class="btn-login">Login</button>
+        </form>
+
+        <div class="divider">or</div>
+
+        <button class="google-btn" id="googleBtn">
+            <img src="{% static 'images/google-icon.png' %}" alt="Google" style="width: 20px; height: 20px;">
+            Login with Google
+        </button>
+    </div>
+</div>
+
 <script>
     const fileInput = document.getElementById('fileInput');
     const fileName = document.getElementById('fileName');
@@ -59,6 +99,33 @@
             fileName.textContent = names;
         } else {
             fileName.textContent = '';
+        }
+    });
+
+    // функционал модального окна
+    const modal = document.getElementById('authModal');
+    const openBtn = document.getElementById('openAuthModal');
+    const closeBtn = document.getElementById('closeModal');
+
+    openBtn.addEventListener('click', function() {
+        modal.style.display = 'block';
+        setTimeout(() => {
+            modal.classList.add('active');
+        }, 10);
+    });
+
+    function closeModal() {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 400);
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            closeModal();
         }
     });
 </script>
