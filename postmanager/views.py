@@ -1,15 +1,12 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from decouple import config
-import json
-import requests
-from .firebase_utils import verify_token, save_user_to_firestore, init_firebase
-from firebase_admin import auth
+from .services import AuthService
 
+
+# главная страница
 def home(request):
-    # авторизован ли пользователь
     user_data = request.session.get('user')
+    error = request.GET.get('error')
+
     context = {
         'social_networks': [
             {'name': 'VK', 'connected': True},
@@ -22,60 +19,54 @@ def home(request):
             'published_today': 0,
         },
         'user': user_data,
-        'firebase_api_key': config('FIREBASE_WEB_API_KEY'),
-        'firebase_project_id': config('FIREBASE_PROJECT_ID'),
-        'google_client_id': config('GOOGLE_WEB_CLIENT_ID', default=''),
+        'error': error,
     }
     return render(request, 'home.html', context)
 
+
+# страница авторизации
 def auth_view(request):
-    context = {
-        'firebase_api_key': config('FIREBASE_WEB_API_KEY'),
-        'firebase_project_id': config('FIREBASE_PROJECT_ID'),
-        'google_client_id': config('GOOGLE_WEB_CLIENT_ID', default=''),
+    error = request.GET.get('error')
+    return render(request, 'auth.html', {'error': error})
+
+
+# авторизация/регистрация через email и пароль
+def email_auth(request):
+    if request.method != 'POST':
+        return redirect('home')
+
+    email = request.POST.get('email')
+    password = request.POST.get('password')
+    action = request.POST.get('action', 'login')
+
+    if not email or not password:
+        return redirect('/?error=введите email и пароль')
+
+    auth_service = AuthService()
+
+    if action == 'register':
+        result = auth_service.register(email, password)
+    else:
+        result = auth_service.login(email, password)
+
+    if not result.success:
+        return redirect(f'/?error={result.error}')
+
+    # сохранение в сессию
+    request.session['user'] = {
+        'uid': result.uid,
+        'email': result.email,
     }
-    return render(request, 'auth.html', context)
 
-# верификация токена от клиента и сохранение в сессию
-@csrf_exempt
-def verify_auth(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            id_token = data.get('idToken')
-
-            if not id_token:
-                return JsonResponse({'error': 'токен не предоставлен'}, status=400)
-
-            # проверка токена через firebase admin
-            decoded_token = verify_token(id_token)
-
-            if decoded_token:
-                # сохранение пользователя в firestore
-                try:
-                    save_user_to_firestore(decoded_token)
-                except Exception as firestore_err:
-                    print(f"ошибка сохранения в firestore: {firestore_err}")
-
-                # сохранение в сессию
-                request.session['user'] = {
-                    'uid': decoded_token['uid'],
-                    'email': decoded_token.get('email', ''),
-                }
-                return JsonResponse({'success': True, 'user': request.session['user']})
-            else:
-                return JsonResponse({'error': 'невалидный токен'}, status=401)
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            return JsonResponse({'error': str(e)}, status=500)
-
-    return JsonResponse({'error': 'метод не разрешён'}, status=405)
-
-# выход из аккаунта
-def logout_view(request):
-    request.session.flush()
     return redirect('home')
+
+
+# редирект на google oauth
+def google_login(request):
+    redirect_uri = request.build_absolute_uri('/api/google-callback/')
+    auth_url = AuthService.get_google_auth_url(redirect_uri)
+    return redirect(auth_url)
+
 
 # обработка callback от google oauth
 def google_callback(request):
@@ -83,76 +74,28 @@ def google_callback(request):
     error = request.GET.get('error')
 
     if error:
-        return redirect('/?error=' + error)
+        return redirect(f'/?error={error}')
 
     if not code:
         return redirect('/?error=no_code')
 
-    try:
-        # обмен code на токены
-        token_url = 'https://oauth2.googleapis.com/token'
-        client_id = config('GOOGLE_WEB_CLIENT_ID')
-        client_secret = config('GOOGLE_CLIENT_SECRET', default='')
-        redirect_uri = request.build_absolute_uri('/api/google-callback/')
+    redirect_uri = request.build_absolute_uri('/api/google-callback/')
+    auth_service = AuthService()
+    result = auth_service.google_auth(code, redirect_uri)
 
-        token_response = requests.post(token_url, data={
-            'code': code,
-            'client_id': client_id,
-            'client_secret': client_secret,
-            'redirect_uri': redirect_uri,
-            'grant_type': 'authorization_code',
-        })
+    if not result.success:
+        return redirect(f'/?error={result.error}')
 
-        if token_response.status_code != 200:
-            print(f"token error: {token_response.text}")
-            return redirect('/?error=token_exchange_failed')
+    # сохранение в сессию
+    request.session['user'] = {
+        'uid': result.uid,
+        'email': result.email,
+    }
 
-        tokens = token_response.json()
-        id_token = tokens.get('id_token')
+    return redirect('home')
 
-        if not id_token:
-            return redirect('/?error=no_id_token')
 
-        # получение информации о пользователе из id_token
-        userinfo_url = 'https://oauth2.googleapis.com/tokeninfo'
-        userinfo_response = requests.get(f"{userinfo_url}?id_token={id_token}")
-
-        if userinfo_response.status_code != 200:
-            return redirect('/?error=userinfo_failed')
-
-        user_info = userinfo_response.json()
-        email = user_info.get('email')
-        uid = user_info.get('sub')
-
-        # создание или получение пользователя в firebase
-        init_firebase()
-        try:
-            firebase_user = auth.get_user_by_email(email)
-        except auth.UserNotFoundError:
-            firebase_user = auth.create_user(email=email, uid=uid)
-
-        # сохранение в firestore
-        try:
-            from .firebase_utils import get_firestore_client
-            from google.cloud.firestore_v1 import SERVER_TIMESTAMP
-            db = get_firestore_client()
-            db.collection('users').document(firebase_user.uid).set({
-                'email': email,
-                'provider': 'google.com',
-                'created_at': SERVER_TIMESTAMP,
-            }, merge=True)
-        except Exception as e:
-            print(f"firestore error: {e}")
-
-        # сохранение в сессию
-        request.session['user'] = {
-            'uid': firebase_user.uid,
-            'email': email,
-        }
-
-        return redirect('home')
-
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return redirect('/?error=auth_failed')
+# выход из аккаунта
+def logout_view(request):
+    request.session.flush()
+    return redirect('home')

@@ -427,6 +427,8 @@ textarea::placeholder {
     gap: 10px;
     font-family: 'Courier New', Courier, monospace;
     text-transform: uppercase;
+    text-decoration: none;
+    box-sizing: border-box;
 }
 
 .google-btn:hover {

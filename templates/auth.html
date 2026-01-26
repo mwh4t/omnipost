@@ -15,148 +15,36 @@
         <p>Social Media Post Management</p>
     </div>
 
-    <div id="error-message" class="error-message" style="display: none;"></div>
+    {% if error %}
+    <div class="error-message">{{ error }}</div>
+    {% endif %}
 
-    <form id="loginForm">
+    <form method="POST" action="{% url 'email_auth' %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" id="authAction" value="login">
+
         <div class="input-group">
             <label>Email</label>
-            <input type="email" id="email" required>
+            <input type="email" name="email" required>
         </div>
 
         <div class="input-group">
             <label>Password</label>
-            <input type="password" id="password" required>
+            <input type="password" name="password" required>
         </div>
 
         <div class="auth-buttons">
-            <button type="submit" class="btn-login">Login</button>
-            <button type="button" class="btn-register" id="registerBtn">Register</button>
+            <button type="submit" class="btn-login" onclick="document.getElementById('authAction').value='login'">Login</button>
+            <button type="submit" class="btn-register" onclick="document.getElementById('authAction').value='register'">Register</button>
         </div>
     </form>
 
     <div class="divider">or</div>
 
-    <button class="google-btn" id="googleBtn">
+    <a href="{% url 'google_login' %}" class="google-btn">
         <img src="{% static 'images/google-icon.png' %}" alt="Google" style="width: 20px; height: 20px;">
         Login with Google
-    </button>
+    </a>
 </div>
-
-<!-- firebase sdk -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-
-<script>
-    // конфигурация firebase
-    const firebaseConfig = {
-        apiKey: "{{ firebase_api_key }}",
-        authDomain: "{{ firebase_project_id }}.firebaseapp.com",
-        projectId: "{{ firebase_project_id }}",
-    };
-    firebase.initializeApp(firebaseConfig);
-
-    const auth = firebase.auth();
-    const errorMsg = document.getElementById('error-message');
-    let isProcessing = false;
-
-    function showError(message) {
-        errorMsg.textContent = message;
-        errorMsg.style.display = 'block';
-        console.error('auth error:', message);
-    }
-
-    function hideError() {
-        errorMsg.style.display = 'none';
-    }
-
-    // отправка токена на сервер
-    async function sendTokenToServer(user) {
-        if (isProcessing) return;
-        isProcessing = true;
-
-        console.log('отправка токена для:', user.email);
-        try {
-            const idToken = await user.getIdToken();
-            const response = await fetch('/api/verify-auth/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idToken })
-            });
-            if (response.ok) {
-                window.location.href = '/';
-            } else {
-                const text = await response.text();
-                try {
-                    const data = JSON.parse(text);
-                    showError(data.error || 'ошибка авторизации');
-                } catch {
-                    console.error('ответ сервера:', text);
-                    showError('ошибка сервера');
-                }
-                isProcessing = false;
-            }
-        } catch (err) {
-            console.error('ошибка запроса:', err);
-            showError('ошибка соединения');
-            isProcessing = false;
-        }
-    }
-
-    // вход по email/password
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        hideError();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-
-        try {
-            const result = await auth.signInWithEmailAndPassword(email, password);
-            await sendTokenToServer(result.user);
-        } catch (error) {
-            showError(error.message);
-        }
-    });
-
-    // регистрация по email/password
-    document.getElementById('registerBtn').addEventListener('click', async () => {
-        hideError();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-
-        if (!email || !password) {
-            showError('введите email и пароль');
-            return;
-        }
-
-        try {
-            const result = await auth.createUserWithEmailAndPassword(email, password);
-            await sendTokenToServer(result.user);
-        } catch (error) {
-            showError(error.message);
-        }
-    });
-
-    // вход через google - используем OAuth redirect
-    const googleClientId = "{{ google_client_id }}";
-
-    document.getElementById('googleBtn').addEventListener('click', () => {
-        hideError();
-        if (!googleClientId) {
-            showError('Google авторизация не настроена');
-            return;
-        }
-        // редирект на google oauth
-        const redirectUri = window.location.origin + '/api/google-callback/';
-        const scope = 'email profile openid';
-        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
-            `client_id=${googleClientId}&` +
-            `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-            `response_type=code&` +
-            `scope=${encodeURIComponent(scope)}&` +
-            `access_type=offline&` +
-            `prompt=consent`;
-        window.location.href = authUrl;
-    });
-</script>
 </body>
 </html>
