@@ -91,6 +91,37 @@ body {
     background: #cccccc;
 }
 
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.auth-buttons .btn-login,
+.auth-buttons .btn-register {
+    flex: 1;
+}
+
+.btn-register {
+    padding: 14px;
+    background: #ffffff;
+    color: #000000;
+    border: 3px solid #000000;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: 'Courier New', Courier, monospace;
+    text-transform: uppercase;
+}
+
+.btn-register:hover {
+    background: #000000;
+    color: #ffffff;
+}
+
+.btn-register:active {
+    background: #cccccc;
+}
+
 .divider {
     text-align: center;
     margin: 25px 0;
