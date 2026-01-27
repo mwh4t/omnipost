@@ -20,17 +20,19 @@
 
 <div class="container">
     <div class="social-section">
-        <div class="social-card">
-            <img src="{% static 'images/vk-icon.png' %}" alt="VK" class="social-icon"
-                 style="width: 20px; height: 20px;">
-            <div class="social-name">VK</div>
-            <div class="social-status status-disconnected">Click to Connect</div>
+        <div class="social-connect-btn" id="vkConnectBtn">
+            <img src="{% static 'images/vk-hlogo.png' %}" alt="VK" class="social-hlogo">
+            <div class="social-input-wrapper">
+                <input type="text" class="social-input" placeholder="VK GROUP ID...">
+                <button type="button" class="social-add-btn">+</button>
+            </div>
         </div>
-        <div class="social-card">
-            <img src="{% static 'images/tg-icon.png' %}" alt="Telegram" class="social-icon"
-                 style="width: 20px; height: 20px;">
-            <div class="social-name">Telegram</div>
-            <div class="social-status status-disconnected">Click to Connect</div>
+        <div class="social-connect-btn" id="tgConnectBtn">
+            <img src="{% static 'images/tg-hlogo.png' %}" alt="Telegram" class="social-hlogo">
+            <div class="social-input-wrapper">
+                <input type="text" class="social-input" placeholder="TG CHANNEL ID...">
+                <button type="button" class="social-add-btn">+</button>
+            </div>
         </div>
     </div>
 
@@ -64,12 +66,27 @@
             <div class="profile-email">{{ user.email }}</div>
 
             <div class="profile-socials">
-                <a href="#" class="social-login-btn vk">
+                {% if vk_connected %}
+                <a href="{% url 'vk_disconnect' %}" class="social-login-btn vk connected" title="Отключить VK">
                     <img src="{% static 'images/vk-icon.png' %}" alt="VK">
+                    <span class="status-dot connected"></span>
                 </a>
-                <a href="#" class="social-login-btn tg">
+                {% else %}
+                <a href="{% url 'vk_login' %}" class="social-login-btn vk" title="Подключить VK">
+                    <img src="{% static 'images/vkoff-icon.png' %}" alt="VK">
+                </a>
+                {% endif %}
+
+                {% if tg_connected %}
+                <a href="{% url 'tg_disconnect' %}" class="social-login-btn tg connected" title="Отключить Telegram">
                     <img src="{% static 'images/tg-icon.png' %}" alt="Telegram">
+                    <span class="status-dot connected"></span>
                 </a>
+                {% else %}
+                <button type="button" class="social-login-btn tg" id="openTgModal" title="Подключить Telegram">
+                    <img src="{% static 'images/tgoff-icon.png' %}" alt="Telegram">
+                </button>
+                {% endif %}
             </div>
 
             <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
@@ -117,6 +134,38 @@
 </script>
 {% endif %}
 
+<!-- модальное окно tg авторизации -->
+<div id="tgModal" class="modal">
+    <div class="modal-content modal-tg">
+        <span class="close-modal" id="closeTgModal">&times;</span>
+        <h3 style="color: #fff; margin-bottom: 20px; text-align: center;">Подключить Telegram</h3>
+
+        <div id="tg-error-message" class="error-message" style="display: none;"></div>
+
+        <!-- ввод номера телефона -->
+        <div id="tgStep1">
+            <div class="input-group">
+                <label>Номер телефона</label>
+                <input type="tel" id="tgPhone" placeholder="+7 999 123 4567" required>
+            </div>
+            <button type="button" class="btn-login" id="tgSendCodeBtn" style="width: 100%;">Получить код</button>
+        </div>
+
+        <!-- ввод кода -->
+        <div id="tgStep2" style="display: none;">
+            <div class="input-group">
+                <label>Код из Telegram</label>
+                <input type="text" id="tgCode" placeholder="12345" required>
+            </div>
+            <div class="input-group" id="tg2faGroup" style="display: none;">
+                <label>Пароль 2FA</label>
+                <input type="password" id="tg2faPassword" placeholder="Ваш пароль">
+            </div>
+            <button type="button" class="btn-login" id="tgVerifyCodeBtn" style="width: 100%;">Подтвердить</button>
+        </div>
+    </div>
+</div>
+
 <script>
     // файлы
     const fileInput = document.getElementById('fileInput');
@@ -146,6 +195,121 @@
         });
     }
 
+    // модальное окно telegram
+    const tgModal = document.getElementById('tgModal');
+    const openTgModalBtn = document.getElementById('openTgModal');
+    const closeTgModalBtn = document.getElementById('closeTgModal');
+
+    if (openTgModalBtn) {
+        openTgModalBtn.addEventListener('click', function() {
+            tgModal.style.display = 'block';
+            setTimeout(() => {
+                tgModal.classList.add('active');
+            }, 10);
+        });
+    }
+
+    if (closeTgModalBtn) {
+        closeTgModalBtn.addEventListener('click', () => closeModal(tgModal));
+    }
+
+    // telegram авторизация
+    const tgSendCodeBtn = document.getElementById('tgSendCodeBtn');
+    const tgVerifyCodeBtn = document.getElementById('tgVerifyCodeBtn');
+    const tgErrorMessage = document.getElementById('tg-error-message');
+
+    function showTgError(message) {
+        tgErrorMessage.textContent = message;
+        tgErrorMessage.style.display = 'block';
+    }
+
+    function hideTgError() {
+        tgErrorMessage.style.display = 'none';
+    }
+
+    if (tgSendCodeBtn) {
+        tgSendCodeBtn.addEventListener('click', async function() {
+            hideTgError();
+            const phone = document.getElementById('tgPhone').value.trim();
+
+            if (!phone) {
+                showTgError('Введите номер телефона');
+                return;
+            }
+
+            tgSendCodeBtn.disabled = true;
+            tgSendCodeBtn.textContent = 'Отправка...';
+
+            try {
+                const response = await fetch('{% url "tg_send_code" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ phone: phone })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('tgStep1').style.display = 'none';
+                    document.getElementById('tgStep2').style.display = 'block';
+                } else {
+                    showTgError(data.error || 'Ошибка отправки кода');
+                }
+            } catch (e) {
+                showTgError('Ошибка соединения');
+            } finally {
+                tgSendCodeBtn.disabled = false;
+                tgSendCodeBtn.textContent = 'Получить код';
+            }
+        });
+    }
+
+    if (tgVerifyCodeBtn) {
+        tgVerifyCodeBtn.addEventListener('click', async function() {
+            hideTgError();
+            const code = document.getElementById('tgCode').value.trim();
+            const password = document.getElementById('tg2faPassword').value;
+
+            if (!code) {
+                showTgError('Введите код');
+                return;
+            }
+
+            tgVerifyCodeBtn.disabled = true;
+            tgVerifyCodeBtn.textContent = 'Проверка...';
+
+            try {
+                const response = await fetch('{% url "tg_verify_code" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ code: code, password: password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.reload();
+                } else if (data.error === '2fa_required') {
+                    document.getElementById('tg2faGroup').style.display = 'block';
+                    showTgError('Требуется пароль двухфакторной аутентификации');
+                } else {
+                    showTgError(data.error || 'Ошибка верификации');
+                }
+            } catch (e) {
+                showTgError('Ошибка соединения');
+            } finally {
+                tgVerifyCodeBtn.disabled = false;
+                tgVerifyCodeBtn.textContent = 'Подтвердить';
+            }
+        });
+    }
+
     function closeModal(modal) {
         modal.classList.remove('active');
         setTimeout(() => {
@@ -160,6 +324,9 @@
     window.addEventListener('click', function(event) {
         if (event.target === profileModal) {
             closeModal(profileModal);
+        }
+        if (event.target === tgModal) {
+            closeModal(tgModal);
         }
     });
 </script>

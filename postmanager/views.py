@@ -1,5 +1,11 @@
 from django.shortcuts import render, redirect
-from .services import AuthService
+from django.http import JsonResponse
+from decouple import config
+from .services import AuthService, VKService, TelegramService
+
+
+# redirect uri для vk
+VK_REDIRECT_URI = config('VK_REDIRECT_URI', default='http://localhost/api/vk-callback/')
 
 
 # главная страница
@@ -7,10 +13,25 @@ def home(request):
     user_data = request.session.get('user')
     error = request.GET.get('error')
 
+    # проверка подключенных аккаунтов
+    vk_connected = False
+    tg_connected = False
+
+    if user_data:
+        uid = user_data.get('uid')
+        vk_service = VKService()
+        tg_service = TelegramService()
+
+        vk_account = vk_service.get_account(uid)
+        tg_account = tg_service.get_account(uid)
+
+        vk_connected = vk_account is not None
+        tg_connected = tg_account is not None
+
     context = {
         'social_networks': [
-            {'name': 'VK', 'connected': True},
-            {'name': 'Telegram', 'connected': True},
+            {'name': 'VK', 'connected': vk_connected},
+            {'name': 'Telegram', 'connected': tg_connected},
         ],
         'recent_posts': [],
         'stats': {
@@ -19,6 +40,8 @@ def home(request):
             'published_today': 0,
         },
         'user': user_data,
+        'vk_connected': vk_connected,
+        'tg_connected': tg_connected,
         'error': error,
     }
     return render(request, 'home.html', context)
@@ -93,4 +116,186 @@ def google_callback(request):
 # выход из аккаунта
 def logout_view(request):
     request.session.flush()
+    return redirect('home')
+
+
+# редирект на vk oauth
+def vk_login(request):
+    user = request.session.get('user')
+    if not user:
+        return redirect('/?error=требуется авторизация')
+
+    vk_service = VKService()
+
+    # генерация pkce параметров
+    code_verifier = vk_service.generate_code_verifier()
+    code_challenge = vk_service.generate_code_challenge(code_verifier)
+
+    # сохранение code_verifier в сессии
+    request.session['vk_code_verifier'] = code_verifier
+
+    auth_url = vk_service.get_auth_url(VK_REDIRECT_URI, code_challenge)
+    return redirect(auth_url)
+
+
+# обработка callback от vk oauth
+def vk_callback(request):
+    user = request.session.get('user')
+    if not user:
+        return redirect('/?error=требуется_авторизация')
+
+    code = request.GET.get('code')
+    device_id = request.GET.get('device_id')
+    error = request.GET.get('error')
+
+    if error:
+        return redirect(f'/?error=vk_{error}')
+
+    if not code:
+        return redirect('/?error=vk_no_code')
+
+    if not device_id:
+        return redirect('/?error=vk_no_device_id')
+
+    # получение code_verifier из сессии для vk
+    code_verifier = request.session.get('vk_code_verifier')
+
+    if not code_verifier:
+        return redirect('/?error=vk_session_expired')
+
+    vk_service = VKService()
+    result = vk_service.auth_callback(code, VK_REDIRECT_URI, code_verifier, device_id)
+
+    # очистка временных данных из сессии для vk
+    request.session.pop('vk_code_verifier', None)
+
+    if not result.success:
+        from urllib.parse import quote
+        return redirect(f'/?error={quote(result.error)}')
+
+    # получение информации о пользователе vk
+    user_info = vk_service.get_user_info(result.access_token)
+
+    # сохранение в firestore
+    vk_service.save_account(user['uid'], {
+        'user_id': result.user_id,
+        'access_token': result.access_token,
+        'user_info': user_info or {},
+    })
+
+    return redirect('home')
+
+
+# отключение vk аккаунта
+def vk_disconnect(request):
+    user = request.session.get('user')
+    if not user:
+        return redirect('/?error=требуется авторизация')
+
+    vk_service = VKService()
+    vk_service.disconnect_account(user['uid'])
+
+    return redirect('home')
+
+
+# отправка кода на телефон для tg
+def tg_send_code(request):
+    user = request.session.get('user')
+    if not user:
+        return JsonResponse({'success': False, 'error': 'требуется авторизация'})
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'method_not_allowed'})
+
+    import json
+    try:
+        data = json.loads(request.body)
+        phone = data.get('phone')
+    except:
+        phone = request.POST.get('phone')
+
+    if not phone:
+        return JsonResponse({'success': False, 'error': 'укажите номер телефона'})
+
+    tg_service = TelegramService()
+    result = tg_service.send_code(phone)
+
+    if not result['success']:
+        return JsonResponse({'success': False, 'error': result.get('error', 'ошибка отправки кода')})
+
+    # сохранение данных в сессию для tg
+    request.session['tg_auth'] = {
+        'phone': phone,
+        'phone_code_hash': result['phone_code_hash'],
+        'session_string': result['session_string'],
+    }
+
+    return JsonResponse({'success': True, 'message': 'код отправлен'})
+
+
+# подтверждение кода для tg
+def tg_verify_code(request):
+    user = request.session.get('user')
+    if not user:
+        return JsonResponse({'success': False, 'error': 'требуется авторизация'})
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'method_not_allowed'})
+
+    tg_auth = request.session.get('tg_auth')
+    if not tg_auth:
+        return JsonResponse({'success': False, 'error': 'сначала запросите код'})
+
+    import json
+    try:
+        data = json.loads(request.body)
+        code = data.get('code')
+        password = data.get('password')
+    except:
+        code = request.POST.get('code')
+        password = request.POST.get('password')
+
+    if not code:
+        return JsonResponse({'success': False, 'error': 'укажите код'})
+
+    tg_service = TelegramService()
+    result = tg_service.sign_in(
+        phone=tg_auth['phone'],
+        code=code,
+        phone_code_hash=tg_auth['phone_code_hash'],
+        session_string=tg_auth['session_string'],
+        password=password
+    )
+
+    if not result.success:
+        if result.error == '2fa_required':
+            return JsonResponse({'success': False, 'error': '2fa_required', 'message': 'требуется пароль 2FA'})
+        return JsonResponse({'success': False, 'error': result.error})
+
+    # получение информации о пользователе tg
+    user_info = tg_service.get_me(result.session_string)
+
+    # сохранение в firestore
+    tg_service.save_account(user['uid'], {
+        'session_string': result.session_string,
+        'user_id': result.user_id,
+        'phone': result.phone,
+        'user_info': user_info or {},
+    })
+
+    # очистка временных данных
+    del request.session['tg_auth']
+
+    return JsonResponse({'success': True, 'message': 'telegram подключен'})
+
+
+# отключение tg аккаунта
+def tg_disconnect(request):
+    user = request.session.get('user')
+    if not user:
+        return redirect('/?error=требуется авторизация')
+
+    tg_service = TelegramService()
+    tg_service.disconnect_account(user['uid'])
+
     return redirect('home')

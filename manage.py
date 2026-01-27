@@ -12,6 +12,11 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+
+    # запуск на порту 80
+    if len(sys.argv) == 2 and sys.argv[1] == 'runserver':
+        sys.argv.append('80')
+
     execute_from_command_line(sys.argv)
 
 
