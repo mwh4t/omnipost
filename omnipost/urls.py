@@ -19,4 +19,7 @@ urlpatterns = [
     path('api/tg-send-code/', views.tg_send_code, name='tg_send_code'),
     path('api/tg-verify-code/', views.tg_verify_code, name='tg_verify_code'),
     path('api/tg-disconnect/', views.tg_disconnect, name='tg_disconnect'),
+
+    # публикация постов
+    path('api/publish-post/', views.publish_post, name='publish_post'),
 ]

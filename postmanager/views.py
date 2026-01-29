@@ -1,7 +1,11 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 from decouple import config
-from .services import AuthService, VKService, TelegramService
+import json
+import os
+from .services import AuthService, VKService, TelegramService, PostService
 
 
 # redirect uri для vk
@@ -299,3 +303,93 @@ def tg_disconnect(request):
     tg_service.disconnect_account(user['uid'])
 
     return redirect('home')
+
+
+# публикация поста
+def publish_post(request):
+    user = request.session.get('user')
+    if not user:
+        return JsonResponse({'success': False, 'error': 'требуется авторизация'})
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'method_not_allowed'})
+
+    # получение данных из формы
+    text = request.POST.get('text', '').strip()
+    vk_groups_str = request.POST.get('vk_groups', '')
+    tg_channels_str = request.POST.get('tg_channels', '')
+
+    # парсинг списков групп/каналов
+    vk_groups = [g.strip() for g in vk_groups_str.split(',') if g.strip()]
+    tg_channels = [c.strip() for c in tg_channels_str.split(',') if c.strip()]
+
+    # проверка что есть текст или изображения
+    files = request.FILES.getlist('files')
+    if not text and not files:
+        return JsonResponse({'success': False, 'error': 'добавьте текст или изображение'})
+
+    # проверка что указаны группы/каналы
+    if not vk_groups and not tg_channels:
+        return JsonResponse({'success': False, 'error': 'укажите хотя бы одну группу или канал'})
+
+    # сохранение загруженных файлов во временную директорию
+    saved_files = []
+    try:
+        for uploaded_file in files:
+            # создаем временное имя файла
+            filename = default_storage.save(
+                f'temp/{uploaded_file.name}',
+                ContentFile(uploaded_file.read())
+            )
+            # получаем полный путь к файлу
+            file_path = default_storage.path(filename)
+            saved_files.append(file_path)
+
+        # публикация поста
+        post_service = PostService()
+        results = post_service.publish_post(
+            uid=user['uid'],
+            text=text,
+            vk_groups=vk_groups,
+            tg_channels=tg_channels,
+            attachments=saved_files if saved_files else None
+        )
+
+        # формирование ответа
+        response = {
+            'success': results['success'],
+            'message': 'пост опубликован' if results['success'] else 'ошибка публикации',
+            'vk_results': [
+                {
+                    'group_id': r.group_id,
+                    'success': r.success,
+                    'post_id': r.post_id,
+                    'error': r.error
+                }
+                for r in results['vk']
+            ],
+            'telegram_results': [
+                {
+                    'channel_id': r.group_id,
+                    'success': r.success,
+                    'post_id': r.post_id,
+                    'error': r.error
+                }
+                for r in results['telegram']
+            ],
+            'errors': results['errors']
+        }
+
+        return JsonResponse(response)
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+    finally:
+        # удаление временных файлов
+        for file_path in saved_files:
+            try:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+            except:
+                pass

@@ -167,6 +167,10 @@
 </div>
 
 <script>
+    // массивы для хранения добавленных групп и каналов
+    let vkGroups = [];
+    let tgChannels = [];
+
     // файлы
     const fileInput = document.getElementById('fileInput');
     const fileName = document.getElementById('fileName');
@@ -177,6 +181,116 @@
                 fileName.textContent = names;
             } else {
                 fileName.textContent = '';
+            }
+        });
+    }
+
+    // добавление VK группы
+    const vkInput = document.querySelector('#vkConnectBtn .social-input');
+    const vkAddBtn = document.querySelector('#vkConnectBtn .social-add-btn');
+
+    if (vkAddBtn && vkInput) {
+        vkAddBtn.addEventListener('click', function() {
+            const groupId = vkInput.value.trim();
+            if (groupId && !vkGroups.includes(groupId)) {
+                vkGroups.push(groupId);
+                vkInput.value = '';
+                console.log('VK группы:', vkGroups);
+                alert(`VK группа ${groupId} добавлена`);
+            } else if (vkGroups.includes(groupId)) {
+                alert('Эта группа уже добавлена');
+            }
+        });
+    }
+
+    // добавление Telegram канала
+    const tgInput = document.querySelector('#tgConnectBtn .social-input');
+    const tgAddBtn = document.querySelector('#tgConnectBtn .social-add-btn');
+
+    if (tgAddBtn && tgInput) {
+        tgAddBtn.addEventListener('click', function() {
+            const channelId = tgInput.value.trim();
+            if (channelId && !tgChannels.includes(channelId)) {
+                tgChannels.push(channelId);
+                tgInput.value = '';
+                console.log('Telegram каналы:', tgChannels);
+                alert(`Telegram канал ${channelId} добавлен`);
+            } else if (tgChannels.includes(channelId)) {
+                alert('Этот канал уже добавлен');
+            }
+        });
+    }
+
+    // публикация поста
+    const publishBtn = document.getElementById('publishBtn');
+    if (publishBtn) {
+        publishBtn.addEventListener('click', async function() {
+            const text = document.getElementById('postText').value.trim();
+            const files = fileInput.files;
+
+            // проверка на наличие контента
+            if (!text && files.length === 0) {
+                alert('Добавьте текст или изображение');
+                return;
+            }
+
+            // проверка на наличие групп/каналов
+            if (vkGroups.length === 0 && tgChannels.length === 0) {
+                alert('Добавьте хотя бы одну группу VK или канал Telegram');
+                return;
+            }
+
+            // создание FormData для отправки
+            const formData = new FormData();
+            formData.append('text', text);
+            formData.append('vk_groups', vkGroups.join(','));
+            formData.append('tg_channels', tgChannels.join(','));
+
+            // добавление файлов
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+
+            // отключение кнопки и показ загрузки
+            publishBtn.disabled = true;
+            publishBtn.textContent = 'ПУБЛИКАЦИЯ...';
+
+            try {
+                const response = await fetch('{% url "publish_post" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Пост успешно опубликован!');
+
+                    // очистка формы
+                    document.getElementById('postText').value = '';
+                    fileInput.value = '';
+                    fileName.textContent = '';
+                    vkGroups = [];
+                    tgChannels = [];
+                } else {
+                    let errorMsg = 'Ошибка публикации:\n';
+
+                    if (data.errors && data.errors.length > 0) {
+                        errorMsg += data.errors.join('\n');
+                    } else {
+                        errorMsg += data.error || 'Неизвестная ошибка';
+                    }
+
+                    alert(errorMsg);
+                }
+            } catch (error) {
+                alert('Ошибка соединения: ' + error.message);
+            } finally {
+                publishBtn.disabled = false;
+                publishBtn.textContent = 'PUBLISH';
             }
         });
     }
