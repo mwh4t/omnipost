@@ -133,6 +133,7 @@ header {
     transition: all 0.2s;
     background: none;
     padding: 0;
+    position: relative;
 }
 
 .social-login-btn img {
@@ -142,6 +143,20 @@ header {
 
 .social-login-btn:hover {
     opacity: 0.7;
+}
+
+/* переключение иконок соцсетей */
+.social-login-btn.connected .icon-hover {
+    display: none;
+    position: absolute;
+}
+
+.social-login-btn.connected:hover .icon-default {
+    display: none;
+}
+
+.social-login-btn.connected:hover .icon-hover {
+    display: block;
 }
 
 /* инфо о пользователе */
@@ -577,29 +592,6 @@ textarea::placeholder {
     margin-bottom: 20px;
     font-size: 14px;
     text-align: center;
-}
-
-/* статус подключения соцсетей */
-.social-login-btn {
-    position: relative;
-}
-
-.social-login-btn.connected {
-    position: relative;
-}
-
-.status-dot {
-    position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid #1a1a1a;
-}
-
-.status-dot.connected {
-    background: #00ff00;
 }
 
 /* модальное окно tg */

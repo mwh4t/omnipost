@@ -68,23 +68,23 @@
             <div class="profile-socials">
                 {% if vk_connected %}
                 <a href="{% url 'vk_disconnect' %}" class="social-login-btn vk connected" title="Отключить VK">
-                    <img src="{% static 'images/vk-icon.png' %}" alt="VK">
-                    <span class="status-dot connected"></span>
+                    <img src="{% static 'images/vkon-icon.png' %}" alt="VK" class="icon-default">
+                    <img src="{% static 'images/vkoff-icon.png' %}" alt="VK" class="icon-hover">
                 </a>
                 {% else %}
                 <a href="{% url 'vk_login' %}" class="social-login-btn vk" title="Подключить VK">
-                    <img src="{% static 'images/vkoff-icon.png' %}" alt="VK">
+                    <img src="{% static 'images/vk-icon.png' %}" alt="VK">
                 </a>
                 {% endif %}
 
                 {% if tg_connected %}
                 <a href="{% url 'tg_disconnect' %}" class="social-login-btn tg connected" title="Отключить Telegram">
-                    <img src="{% static 'images/tg-icon.png' %}" alt="Telegram">
-                    <span class="status-dot connected"></span>
+                    <img src="{% static 'images/tgon-icon.png' %}" alt="Telegram" class="icon-default">
+                    <img src="{% static 'images/tgoff-icon.png' %}" alt="Telegram" class="icon-hover">
                 </a>
                 {% else %}
                 <button type="button" class="social-login-btn tg" id="openTgModal" title="Подключить Telegram">
-                    <img src="{% static 'images/tgoff-icon.png' %}" alt="Telegram">
+                    <img src="{% static 'images/tg-icon.png' %}" alt="Telegram">
                 </button>
                 {% endif %}
             </div>
