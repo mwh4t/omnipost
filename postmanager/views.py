@@ -50,8 +50,6 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
-
-
 # авторизация/регистрация через email и пароль
 def email_auth(request):
     if request.method != 'POST':
@@ -82,13 +80,11 @@ def email_auth(request):
 
     return redirect('home')
 
-
 # редирект на google oauth
 def google_login(request):
     redirect_uri = request.build_absolute_uri('/api/google-callback/')
     auth_url = AuthService.get_google_auth_url(redirect_uri)
     return redirect(auth_url)
-
 
 # обработка callback от google oauth
 def google_callback(request):
@@ -116,12 +112,10 @@ def google_callback(request):
 
     return redirect('home')
 
-
 # выход из аккаунта
 def logout_view(request):
     request.session.flush()
     return redirect('home')
-
 
 # редирект на vk oauth
 def vk_login(request):
@@ -140,7 +134,6 @@ def vk_login(request):
 
     auth_url = vk_service.get_auth_url(VK_REDIRECT_URI, code_challenge)
     return redirect(auth_url)
-
 
 # обработка callback от vk oauth
 def vk_callback(request):
@@ -189,7 +182,6 @@ def vk_callback(request):
 
     return redirect('home')
 
-
 # отключение vk аккаунта
 def vk_disconnect(request):
     user = request.session.get('user')
@@ -200,7 +192,6 @@ def vk_disconnect(request):
     vk_service.disconnect_account(user['uid'])
 
     return redirect('home')
-
 
 # отправка кода на телефон для tg
 def tg_send_code(request):
@@ -235,7 +226,6 @@ def tg_send_code(request):
     }
 
     return JsonResponse({'success': True, 'message': 'код отправлен'})
-
 
 # подтверждение кода для tg
 def tg_verify_code(request):
@@ -292,7 +282,6 @@ def tg_verify_code(request):
 
     return JsonResponse({'success': True, 'message': 'telegram подключен'})
 
-
 # отключение tg аккаунта
 def tg_disconnect(request):
     user = request.session.get('user')
@@ -303,7 +292,6 @@ def tg_disconnect(request):
     tg_service.disconnect_account(user['uid'])
 
     return redirect('home')
-
 
 # публикация поста
 def publish_post(request):
@@ -394,7 +382,6 @@ def publish_post(request):
             except:
                 pass
 
-
 # сохранение токена доступа vk группы
 def save_vk_group_token(request):
     user = request.session.get('user')
@@ -449,3 +436,87 @@ def remove_vk_group_token(request):
         return JsonResponse({'success': True, 'message': 'токен группы удален'})
     else:
         return JsonResponse({'success': False, 'error': 'ошибка удаления токена'})
+
+
+# сохранение tg канала
+def save_tg_channel(request):
+    user = request.session.get('user')
+    if not user:
+        return JsonResponse({'success': False, 'error': 'требуется авторизация'})
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'method_not_allowed'})
+
+    try:
+        data = json.loads(request.body)
+        channel_id = data.get('channel_id', '').strip()
+        channel_name = data.get('channel_name', '').strip()
+    except:
+        channel_id = request.POST.get('channel_id', '').strip()
+        channel_name = request.POST.get('channel_name', '').strip()
+
+    if not channel_id:
+        return JsonResponse({'success': False, 'error': 'укажите ID канала'})
+
+    post_service = PostService()
+    success = post_service.save_tg_channel(user['uid'], channel_id, channel_name)
+
+    if success:
+        return JsonResponse({'success': True, 'message': 'канал сохранен'})
+    else:
+        return JsonResponse({'success': False, 'error': 'ошибка сохранения канала'})
+
+
+# удаление tg канала
+def remove_tg_channel(request):
+    user = request.session.get('user')
+    if not user:
+        return JsonResponse({'success': False, 'error': 'требуется авторизация'})
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'method_not_allowed'})
+
+    try:
+        data = json.loads(request.body)
+        channel_id = data.get('channel_id', '').strip()
+    except:
+        channel_id = request.POST.get('channel_id', '').strip()
+
+    if not channel_id:
+        return JsonResponse({'success': False, 'error': 'укажите ID канала'})
+
+    post_service = PostService()
+    success = post_service.remove_tg_channel(user['uid'], channel_id)
+
+    if success:
+        return JsonResponse({'success': True, 'message': 'канал удален'})
+    else:
+        return JsonResponse({'success': False, 'error': 'ошибка удаления канала'})
+
+
+# получение списка сохраненных групп и каналов
+def get_saved_groups(request):
+    user = request.session.get('user')
+    if not user:
+        return JsonResponse({'success': False, 'error': 'требуется авторизация'})
+
+    post_service = PostService()
+
+    vk_groups = post_service.get_vk_groups(user['uid'])
+    tg_channels = post_service.get_tg_channels(user['uid'])
+
+    vk_list = [
+        {'id': group_id, 'name': f"VK Group {group_id}"}
+        for group_id in vk_groups.keys()
+    ]
+
+    tg_list = [
+        {'id': channel_id, 'name': data.get('name', channel_id)}
+        for channel_id, data in tg_channels.items()
+    ]
+
+    return JsonResponse({
+        'success': True,
+        'vk_groups': vk_list,
+        'tg_channels': tg_list
+    })

@@ -26,4 +26,11 @@ urlpatterns = [
     # управление токенами vk групп
     path('api/save-vk-group-token/', views.save_vk_group_token, name='save_vk_group_token'),
     path('api/remove-vk-group-token/', views.remove_vk_group_token, name='remove_vk_group_token'),
+
+    # управление tg каналами
+    path('api/save-tg-channel/', views.save_tg_channel, name='save_tg_channel'),
+    path('api/remove-tg-channel/', views.remove_tg_channel, name='remove_tg_channel'),
+
+    # получение списка групп и каналов
+    path('api/get-saved-groups/', views.get_saved_groups, name='get_saved_groups'),
 ]

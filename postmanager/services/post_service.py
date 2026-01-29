@@ -27,24 +27,28 @@ class PostService:
         self.tg_service = TelegramService()
 
     # публикация поста в vk группу
-    def publish_to_vk(self, access_token: str, group_id: str,
-                      text: str) -> PostResult:
+    def publish_to_vk(self, access_token: str, group_id: str, text: str,
+                      attachments: list = None) -> PostResult:
         try:
             vk_session = vk_api.VkApi(token=access_token)
             vk = vk_session.get_api()
 
+            # публикация поста
             post_params = {
                 'owner_id': f'-{group_id}',
                 'from_group': 1,
                 'message': text,
             }
+
             response = vk.wall.post(**post_params)
+
             return PostResult(
                 success=True,
                 platform='vk',
                 group_id=group_id,
                 post_id=str(response.get('post_id', ''))
             )
+
         except Exception as e:
             return PostResult(
                 success=False,
@@ -103,6 +107,7 @@ class PostService:
                     message_id = str(message[0].id) if message else None
                 else:
                     message_id = str(message.id)
+
             else:
                 # отправка только текста
                 message = await client.send_message(entity, text)
@@ -139,7 +144,8 @@ class PostService:
 
         try:
             return loop.run_until_complete(
-                self._publish_to_telegram_async(session_string, channel_id, text, attachments)
+                self._publish_to_telegram_async(session_string, channel_id,
+                                                text, attachments)
             )
         finally:
             loop.close()
@@ -163,7 +169,7 @@ class PostService:
         # публикация в vk
         if vk_groups:
             for group_id in vk_groups:
-                # токен группы
+                # получение токена группы
                 group_token = self.get_vk_group_token(uid, group_id)
 
                 if not group_token:
@@ -210,17 +216,18 @@ class PostService:
             doc_ref = self.firebase.db.collection('users').document(uid)
             doc = doc_ref.get()
 
+            # создание документа
             if not doc.exists:
                 doc_ref.set({
                     'uid': uid,
                     'vk_groups': {}
                 })
 
-            # текущие группы
+            # получение текущих групп
             data = doc_ref.get().to_dict()
             vk_groups = data.get('vk_groups', {})
 
-            # сохранение токен группы
+            # сохранение токена группы
             vk_groups[group_id] = {
                 'token': group_token,
                 'added_at': SERVER_TIMESTAMP
@@ -276,3 +283,96 @@ class PostService:
         except Exception:
             return False
 
+    # сохранение tg канала
+    def save_tg_channel(self, uid: str, channel_id: str, channel_name: str = None) -> bool:
+        try:
+            from google.cloud.firestore_v1 import SERVER_TIMESTAMP
+
+            doc_ref = self.firebase.db.collection('users').document(uid)
+            doc = doc_ref.get()
+
+            # создание документа
+            if not doc.exists:
+                doc_ref.set({
+                    'uid': uid,
+                    'tg_channels': {
+                        channel_id: {
+                            'name': channel_name or channel_id,
+                            'added_at': SERVER_TIMESTAMP
+                        }
+                    }
+                })
+                return True
+
+            # получение текущих каналов
+            data = doc.to_dict()
+            tg_channels = data.get('tg_channels', {})
+
+            # сохранение канала
+            tg_channels[channel_id] = {
+                'name': channel_name or channel_id,
+                'added_at': SERVER_TIMESTAMP
+            }
+
+            doc_ref.update({
+                'tg_channels': tg_channels
+            })
+
+            return True
+
+        except Exception as e:
+            print(f"Ошибка сохранения Telegram канала: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+
+    # получение списка tg каналов
+    def get_tg_channels(self, uid: str) -> dict:
+        try:
+            doc = self.firebase.db.collection('users').document(uid).get()
+
+            if not doc.exists:
+                return {}
+
+            data = doc.to_dict()
+            return data.get('tg_channels', {})
+
+        except Exception:
+            return {}
+
+    # удаление tg канала
+    def remove_tg_channel(self, uid: str, channel_id: str) -> bool:
+        try:
+            doc_ref = self.firebase.db.collection('users').document(uid)
+            doc = doc_ref.get()
+
+            if not doc.exists:
+                return False
+
+            data = doc.to_dict()
+            tg_channels = data.get('tg_channels', {})
+
+            if channel_id in tg_channels:
+                del tg_channels[channel_id]
+                doc_ref.update({
+                    'tg_channels': tg_channels
+                })
+
+            return True
+
+        except Exception:
+            return False
+
+    # получение списка vk групп
+    def get_vk_groups(self, uid: str) -> dict:
+        try:
+            doc = self.firebase.db.collection('users').document(uid).get()
+
+            if not doc.exists:
+                return {}
+
+            data = doc.to_dict()
+            return data.get('vk_groups', {})
+
+        except Exception:
+            return {}
