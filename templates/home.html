@@ -20,20 +20,24 @@
 
 <div class="container">
     <div class="social-section">
-        <div class="social-connect-btn" id="vkConnectBtn">
+        <div class="social-connect-btn{% if not vk_connected %} disabled{% endif %}" id="vkConnectBtn" {% if not vk_connected %}style="opacity:0.5;pointer-events:none;"{% endif %}>
             <img src="{% static 'images/vk-hlogo.png' %}" alt="VK" class="social-hlogo">
+            {% if vk_connected %}
             <div class="social-input-wrapper">
                 <input type="text" class="social-input social-group-id" placeholder="GROUP ID">
                 <input type="text" class="social-input social-group-token" placeholder="ACCESS TOKEN">
                 <button type="button" class="social-add-btn">+</button>
             </div>
+            {% endif %}
         </div>
-        <div class="social-connect-btn" id="tgConnectBtn">
+        <div class="social-connect-btn{% if not tg_connected %} disabled{% endif %}" id="tgConnectBtn" {% if not tg_connected %}style="opacity:0.5;pointer-events:none;"{% endif %}>
             <img src="{% static 'images/tg-hlogo.png' %}" alt="Telegram" class="social-hlogo">
+            {% if tg_connected %}
             <div class="social-input-wrapper">
                 <input type="text" class="social-input" placeholder="TG CHANNEL ID...">
                 <button type="button" class="social-add-btn">+</button>
             </div>
+            {% endif %}
         </div>
     </div>
 

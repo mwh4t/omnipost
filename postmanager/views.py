@@ -9,7 +9,7 @@ from .services import AuthService, VKService, TelegramService, PostService
 
 
 # redirect uri для vk
-VK_REDIRECT_URI = config('VK_REDIRECT_URI', default='http://localhost/api/vk-callback/')
+VK_REDIRECT_URI = config('VK_REDIRECT_URI')
 
 
 # главная страница
@@ -323,12 +323,12 @@ def publish_post(request):
     vk_groups = [g.strip() for g in vk_groups_str.split(',') if g.strip()]
     tg_channels = [c.strip() for c in tg_channels_str.split(',') if c.strip()]
 
-    # проверка что есть текст или изображения
+    # проверка на текст или изображения
     files = request.FILES.getlist('files')
     if not text and not files:
         return JsonResponse({'success': False, 'error': 'добавьте текст или изображение'})
 
-    # проверка что указаны группы/каналы
+    # проверка на группы/каналы
     if not vk_groups and not tg_channels:
         return JsonResponse({'success': False, 'error': 'укажите хотя бы одну группу или канал'})
 
@@ -336,12 +336,12 @@ def publish_post(request):
     saved_files = []
     try:
         for uploaded_file in files:
-            # создаем временное имя файла
+            # создание временного имени файла
             filename = default_storage.save(
                 f'temp/{uploaded_file.name}',
                 ContentFile(uploaded_file.read())
             )
-            # получаем полный путь к файлу
+            # получение полного путя к файлу
             file_path = default_storage.path(filename)
             saved_files.append(file_path)
 
@@ -395,7 +395,7 @@ def publish_post(request):
                 pass
 
 
-# сохранение токена доступа VK группы
+# сохранение токена доступа vk группы
 def save_vk_group_token(request):
     user = request.session.get('user')
     if not user:
@@ -424,7 +424,7 @@ def save_vk_group_token(request):
         return JsonResponse({'success': False, 'error': 'ошибка сохранения токена'})
 
 
-# удаление токена доступа VK группы
+# удаление токена доступа vk группы
 def remove_vk_group_token(request):
     user = request.session.get('user')
     if not user:

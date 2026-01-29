@@ -13,7 +13,7 @@ from .telegram_service import TelegramService
 @dataclass
 class PostResult:
     success: bool
-    platform: str  # 'vk' или 'telegram'
+    platform: str
     group_id: str
     post_id: str = None
     error: str = None
@@ -26,50 +26,25 @@ class PostService:
         self.vk_service = VKService()
         self.tg_service = TelegramService()
 
-    # публикация поста в VK группу
-    def publish_to_vk(self, access_token: str, group_id: str, text: str, attachments: list = None) -> PostResult:
+    # публикация поста в vk группу
+    def publish_to_vk(self, access_token: str, group_id: str,
+                      text: str) -> PostResult:
         try:
             vk_session = vk_api.VkApi(token=access_token)
             vk = vk_session.get_api()
-            upload = vk_api.VkUpload(vk_session)
 
-            # загрузка изображений если есть
-            attachment_ids = []
-            if attachments:
-                for file_path in attachments:
-                    try:
-                        # загрузка фото на стену группы
-                        photo = upload.photo_wall(
-                            photos=file_path,
-                            group_id=group_id
-                        )
-
-                        if photo:
-                            # формат: photo{owner_id}_{id}
-                            attachment_ids.append(f"photo{photo[0]['owner_id']}_{photo[0]['id']}")
-                    except Exception as e:
-                        print(f"Ошибка загрузки фото в VK: {e}")
-                        continue
-
-            # публикация поста
             post_params = {
                 'owner_id': f'-{group_id}',
                 'from_group': 1,
                 'message': text,
             }
-
-            if attachment_ids:
-                post_params['attachments'] = ','.join(attachment_ids)
-
             response = vk.wall.post(**post_params)
-
             return PostResult(
                 success=True,
                 platform='vk',
                 group_id=group_id,
                 post_id=str(response.get('post_id', ''))
             )
-
         except Exception as e:
             return PostResult(
                 success=False,
@@ -78,7 +53,7 @@ class PostService:
                 error=str(e)
             )
 
-    # публикация поста в Telegram канал
+    # публикация поста в tg канал
     async def _publish_to_telegram_async(
             self,
             session_string: str,
@@ -103,9 +78,6 @@ class PostService:
                     error='не авторизован'
                 )
 
-            # форматирование channel_id
-            # если начинается с @, оставляем как есть
-            # если число, добавляем -100 для супергрупп/каналов
             if channel_id.startswith('@'):
                 entity = channel_id
             elif channel_id.startswith('-100'):
@@ -113,7 +85,6 @@ class PostService:
             elif channel_id.startswith('-'):
                 entity = int(channel_id)
             else:
-                # пробуем добавить -100 для публичных каналов
                 try:
                     entity = int(f"-100{channel_id}")
                 except ValueError:
@@ -127,15 +98,21 @@ class PostService:
                     attachments,
                     caption=text if text else None
                 )
+
+                if isinstance(message, list):
+                    message_id = str(message[0].id) if message else None
+                else:
+                    message_id = str(message.id)
             else:
                 # отправка только текста
                 message = await client.send_message(entity, text)
+                message_id = str(message.id)
 
             return PostResult(
                 success=True,
                 platform='telegram',
                 group_id=channel_id,
-                post_id=str(message.id)
+                post_id=message_id
             )
 
         except Exception as e:
@@ -149,7 +126,7 @@ class PostService:
         finally:
             await client.disconnect()
 
-    # синхронная обёртка для публикации в Telegram
+    # синхронная обёртка для публикации в tg
     def publish_to_telegram(
             self,
             session_string: str,
@@ -183,10 +160,10 @@ class PostService:
             'errors': []
         }
 
-        # публикация в VK - используем токены групп
+        # публикация в vk
         if vk_groups:
             for group_id in vk_groups:
-                # Получаем токен группы
+                # токен группы
                 group_token = self.get_vk_group_token(uid, group_id)
 
                 if not group_token:
@@ -207,7 +184,7 @@ class PostService:
                     results['success'] = False
                     results['errors'].append(f"VK группа {group_id}: {result.error}")
 
-        # публикация в Telegram
+        # публикация в tg
         if tg_channels:
             tg_account = self.tg_service.get_account(uid)
 
@@ -227,25 +204,23 @@ class PostService:
 
         return results
 
-    # сохранение токена VK группы
+    # сохранение токена vk группы
     def save_vk_group_token(self, uid: str, group_id: str, group_token: str) -> bool:
-        """Сохранение токена доступа VK группы для пользователя"""
         try:
             doc_ref = self.firebase.db.collection('users').document(uid)
             doc = doc_ref.get()
 
-            # Создаем документ если не существует
             if not doc.exists:
                 doc_ref.set({
                     'uid': uid,
                     'vk_groups': {}
                 })
 
-            # Получаем текущие группы
+            # текущие группы
             data = doc_ref.get().to_dict()
             vk_groups = data.get('vk_groups', {})
 
-            # Сохраняем токен группы
+            # сохранение токен группы
             vk_groups[group_id] = {
                 'token': group_token,
                 'added_at': SERVER_TIMESTAMP
@@ -261,9 +236,8 @@ class PostService:
             print(f"Ошибка сохранения токена группы VK: {e}")
             return False
 
-    # получение токена VK группы
+    # получение токена vk группы
     def get_vk_group_token(self, uid: str, group_id: str) -> str | None:
-        """Получение токена доступа VK группы"""
         try:
             doc = self.firebase.db.collection('users').document(uid).get()
 
@@ -279,9 +253,8 @@ class PostService:
         except Exception:
             return None
 
-    # удаление токена VK группы
+    # удаление токена vk группы
     def remove_vk_group_token(self, uid: str, group_id: str) -> bool:
-        """Удаление токена доступа VK группы"""
         try:
             doc_ref = self.firebase.db.collection('users').document(uid)
             doc = doc_ref.get()
@@ -302,3 +275,4 @@ class PostService:
 
         except Exception:
             return False
+
