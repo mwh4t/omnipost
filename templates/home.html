@@ -23,7 +23,8 @@
         <div class="social-connect-btn" id="vkConnectBtn">
             <img src="{% static 'images/vk-hlogo.png' %}" alt="VK" class="social-hlogo">
             <div class="social-input-wrapper">
-                <input type="text" class="social-input" placeholder="VK GROUP ID...">
+                <input type="text" class="social-input social-group-id" placeholder="GROUP ID">
+                <input type="text" class="social-input social-group-token" placeholder="ACCESS TOKEN">
                 <button type="button" class="social-add-btn">+</button>
             </div>
         </div>
@@ -61,77 +62,82 @@
         <span class="close-modal" id="closeProfileModal">&times;</span>
 
         {% if user %}
-        <!-- авторизован -->
-        <div class="profile-info">
-            <div class="profile-email">{{ user.email }}</div>
+            <!-- авторизован -->
+            <div class="profile-info">
+                <div class="profile-email">{{ user.email }}</div>
 
-            <div class="profile-socials">
-                {% if vk_connected %}
-                <a href="{% url 'vk_disconnect' %}" class="social-login-btn vk connected" title="Отключить VK">
-                    <img src="{% static 'images/vkon-icon.png' %}" alt="VK" class="icon-default">
-                    <img src="{% static 'images/vkoff-icon.png' %}" alt="VK" class="icon-hover">
-                </a>
-                {% else %}
-                <a href="{% url 'vk_login' %}" class="social-login-btn vk" title="Подключить VK">
-                    <img src="{% static 'images/vk-icon.png' %}" alt="VK">
-                </a>
-                {% endif %}
+                <div class="profile-socials">
+                    {% if vk_connected %}
+                        <a href="{% url 'vk_disconnect' %}" class="social-login-btn vk connected" title="Отключить VK">
+                            <img src="{% static 'images/vkon-icon.png' %}" alt="VK" class="icon-default">
+                            <img src="{% static 'images/vkoff-icon.png' %}" alt="VK" class="icon-hover">
+                        </a>
+                    {% else %}
+                        <a href="{% url 'vk_login' %}" class="social-login-btn vk" title="Подключить VK">
+                            <img src="{% static 'images/vk-icon.png' %}" alt="VK">
+                        </a>
+                    {% endif %}
 
-                {% if tg_connected %}
-                <a href="{% url 'tg_disconnect' %}" class="social-login-btn tg connected" title="Отключить Telegram">
-                    <img src="{% static 'images/tgon-icon.png' %}" alt="Telegram" class="icon-default">
-                    <img src="{% static 'images/tgoff-icon.png' %}" alt="Telegram" class="icon-hover">
-                </a>
-                {% else %}
-                <button type="button" class="social-login-btn tg" id="openTgModal" title="Подключить Telegram">
-                    <img src="{% static 'images/tg-icon.png' %}" alt="Telegram">
-                </button>
-                {% endif %}
+                    {% if tg_connected %}
+                        <a href="{% url 'tg_disconnect' %}" class="social-login-btn tg connected"
+                           title="Отключить Telegram">
+                            <img src="{% static 'images/tgon-icon.png' %}" alt="Telegram" class="icon-default">
+                            <img src="{% static 'images/tgoff-icon.png' %}" alt="Telegram" class="icon-hover">
+                        </a>
+                    {% else %}
+                        <button type="button" class="social-login-btn tg" id="openTgModal" title="Подключить Telegram">
+                            <img src="{% static 'images/tg-icon.png' %}" alt="Telegram">
+                        </button>
+                    {% endif %}
+                </div>
+
+                <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
             </div>
-
-            <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
-        </div>
         {% else %}
-        <!-- не авторизован -->
-        <div id="error-message" class="error-message" style="display: none;"></div>
+            <!-- не авторизован -->
+            <div id="error-message" class="error-message" style="display: none;"></div>
 
-        <form id="authForm" method="POST" action="{% url 'email_auth' %}">
-            {% csrf_token %}
-            <input type="hidden" name="action" id="authAction" value="login">
+            <form id="authForm" method="POST" action="{% url 'email_auth' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" id="authAction" value="login">
 
-            <div class="input-group">
-                <label>Email</label>
-                <input type="email" name="email" id="email" required>
-            </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" name="email" id="email" required>
+                </div>
 
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" name="password" id="password" required>
-            </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="password" id="password" required>
+                </div>
 
-            <div class="auth-buttons">
-                <button type="submit" class="btn-login" onclick="document.getElementById('authAction').value='login'">Login</button>
-                <button type="submit" class="btn-register" onclick="document.getElementById('authAction').value='register'">Register</button>
-            </div>
-        </form>
+                <div class="auth-buttons">
+                    <button type="submit" class="btn-login"
+                            onclick="document.getElementById('authAction').value='login'">Login
+                    </button>
+                    <button type="submit" class="btn-register"
+                            onclick="document.getElementById('authAction').value='register'">Register
+                    </button>
+                </div>
+            </form>
 
-        <div class="divider">or</div>
+            <div class="divider">or</div>
 
-        <a href="{% url 'google_login' %}" class="google-btn">
-            <img src="{% static 'images/google-icon.png' %}" alt="Google" style="width: 20px; height: 20px;">
-            Login with Google
-        </a>
+            <a href="{% url 'google_login' %}" class="google-btn">
+                <img src="{% static 'images/google-icon.png' %}" alt="Google" style="width: 20px; height: 20px;">
+                Login with Google
+            </a>
         {% endif %}
     </div>
 </div>
 
 {% if error %}
-<script>
-    document.getElementById('error-message').textContent = "{{ error }}";
-    document.getElementById('error-message').style.display = 'block';
-    document.getElementById('profileModal').style.display = 'block';
-    document.getElementById('profileModal').classList.add('active');
-</script>
+    <script>
+        document.getElementById('error-message').textContent = "{{ error }}";
+        document.getElementById('error-message').style.display = 'block';
+        document.getElementById('profileModal').style.display = 'block';
+        document.getElementById('profileModal').classList.add('active');
+    </script>
 {% endif %}
 
 <!-- модальное окно tg авторизации -->
@@ -186,19 +192,52 @@
     }
 
     // добавление VK группы
-    const vkInput = document.querySelector('#vkConnectBtn .social-input');
+    const vkGroupIdInput = document.querySelector('#vkConnectBtn .social-group-id');
+    const vkGroupTokenInput = document.querySelector('#vkConnectBtn .social-group-token');
     const vkAddBtn = document.querySelector('#vkConnectBtn .social-add-btn');
 
-    if (vkAddBtn && vkInput) {
-        vkAddBtn.addEventListener('click', function() {
-            const groupId = vkInput.value.trim();
-            if (groupId && !vkGroups.includes(groupId)) {
-                vkGroups.push(groupId);
-                vkInput.value = '';
-                console.log('VK группы:', vkGroups);
-                alert(`VK группа ${groupId} добавлена`);
-            } else if (vkGroups.includes(groupId)) {
+    if (vkAddBtn && vkGroupIdInput && vkGroupTokenInput) {
+        vkAddBtn.addEventListener('click', async function () {
+            const groupId = vkGroupIdInput.value.trim();
+            const groupToken = vkGroupTokenInput.value.trim();
+
+            if (!groupId || !groupToken) {
+                alert('Введите ID группы и токен доступа');
+                return;
+            }
+
+            if (vkGroups.includes(groupId)) {
                 alert('Эта группа уже добавлена');
+                return;
+            }
+
+            // Сохраняем токен на сервере
+            try {
+                const response = await fetch('{% url "save_vk_group_token" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        group_id: groupId,
+                        group_token: groupToken
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    vkGroups.push(groupId);
+                    vkGroupIdInput.value = '';
+                    vkGroupTokenInput.value = '';
+                    console.log('VK группы:', vkGroups);
+                    alert(`VK группа ${groupId} добавлена`);
+                } else {
+                    alert('Ошибка: ' + (data.error || 'не удалось сохранить токен'));
+                }
+            } catch (error) {
+                alert('Ошибка соединения: ' + error.message);
             }
         });
     }
@@ -208,7 +247,7 @@
     const tgAddBtn = document.querySelector('#tgConnectBtn .social-add-btn');
 
     if (tgAddBtn && tgInput) {
-        tgAddBtn.addEventListener('click', function() {
+        tgAddBtn.addEventListener('click', function () {
             const channelId = tgInput.value.trim();
             if (channelId && !tgChannels.includes(channelId)) {
                 tgChannels.push(channelId);
@@ -224,7 +263,7 @@
     // публикация поста
     const publishBtn = document.getElementById('publishBtn');
     if (publishBtn) {
-        publishBtn.addEventListener('click', async function() {
+        publishBtn.addEventListener('click', async function () {
             const text = document.getElementById('postText').value.trim();
             const files = fileInput.files;
 
@@ -301,7 +340,7 @@
     const closeProfileBtn = document.getElementById('closeProfileModal');
 
     if (openProfileBtn) {
-        openProfileBtn.addEventListener('click', function() {
+        openProfileBtn.addEventListener('click', function () {
             profileModal.style.display = 'block';
             setTimeout(() => {
                 profileModal.classList.add('active');
@@ -315,7 +354,7 @@
     const closeTgModalBtn = document.getElementById('closeTgModal');
 
     if (openTgModalBtn) {
-        openTgModalBtn.addEventListener('click', function() {
+        openTgModalBtn.addEventListener('click', function () {
             tgModal.style.display = 'block';
             setTimeout(() => {
                 tgModal.classList.add('active');
@@ -342,7 +381,7 @@
     }
 
     if (tgSendCodeBtn) {
-        tgSendCodeBtn.addEventListener('click', async function() {
+        tgSendCodeBtn.addEventListener('click', async function () {
             hideTgError();
             const phone = document.getElementById('tgPhone').value.trim();
 
@@ -361,7 +400,7 @@
                         'Content-Type': 'application/json',
                         'X-CSRFToken': '{{ csrf_token }}'
                     },
-                    body: JSON.stringify({ phone: phone })
+                    body: JSON.stringify({phone: phone})
                 });
 
                 const data = await response.json();
@@ -382,7 +421,7 @@
     }
 
     if (tgVerifyCodeBtn) {
-        tgVerifyCodeBtn.addEventListener('click', async function() {
+        tgVerifyCodeBtn.addEventListener('click', async function () {
             hideTgError();
             const code = document.getElementById('tgCode').value.trim();
             const password = document.getElementById('tg2faPassword').value;
@@ -402,7 +441,7 @@
                         'Content-Type': 'application/json',
                         'X-CSRFToken': '{{ csrf_token }}'
                     },
-                    body: JSON.stringify({ code: code, password: password })
+                    body: JSON.stringify({code: code, password: password})
                 });
 
                 const data = await response.json();
@@ -435,7 +474,7 @@
         closeProfileBtn.addEventListener('click', () => closeModal(profileModal));
     }
 
-    window.addEventListener('click', function(event) {
+    window.addEventListener('click', function (event) {
         if (event.target === profileModal) {
             closeModal(profileModal);
         }

@@ -393,3 +393,59 @@ def publish_post(request):
                     os.remove(file_path)
             except:
                 pass
+
+
+# сохранение токена доступа VK группы
+def save_vk_group_token(request):
+    user = request.session.get('user')
+    if not user:
+        return JsonResponse({'success': False, 'error': 'требуется авторизация'})
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'method_not_allowed'})
+
+    try:
+        data = json.loads(request.body)
+        group_id = data.get('group_id', '').strip()
+        group_token = data.get('group_token', '').strip()
+    except:
+        group_id = request.POST.get('group_id', '').strip()
+        group_token = request.POST.get('group_token', '').strip()
+
+    if not group_id or not group_token:
+        return JsonResponse({'success': False, 'error': 'укажите ID группы и токен доступа'})
+
+    post_service = PostService()
+    success = post_service.save_vk_group_token(user['uid'], group_id, group_token)
+
+    if success:
+        return JsonResponse({'success': True, 'message': 'токен группы сохранен'})
+    else:
+        return JsonResponse({'success': False, 'error': 'ошибка сохранения токена'})
+
+
+# удаление токена доступа VK группы
+def remove_vk_group_token(request):
+    user = request.session.get('user')
+    if not user:
+        return JsonResponse({'success': False, 'error': 'требуется авторизация'})
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'method_not_allowed'})
+
+    try:
+        data = json.loads(request.body)
+        group_id = data.get('group_id', '').strip()
+    except:
+        group_id = request.POST.get('group_id', '').strip()
+
+    if not group_id:
+        return JsonResponse({'success': False, 'error': 'укажите ID группы'})
+
+    post_service = PostService()
+    success = post_service.remove_vk_group_token(user['uid'], group_id)
+
+    if success:
+        return JsonResponse({'success': True, 'message': 'токен группы удален'})
+    else:
+        return JsonResponse({'success': False, 'error': 'ошибка удаления токена'})

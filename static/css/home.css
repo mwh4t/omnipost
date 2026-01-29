@@ -145,7 +145,7 @@ header {
     opacity: 0.7;
 }
 
-/* переключение иконок соцсетей */
+/* Логика переключения иконок для подключенных соцсетей */
 .social-login-btn.connected .icon-hover {
     display: none;
     position: absolute;
@@ -275,6 +275,12 @@ header {
 
 .social-input::placeholder {
     color: #999999;
+}
+
+.social-input.social-group-id,
+.social-input.social-group-token {
+    width: 85px;
+    font-size: 14px;
 }
 
 .social-add-btn {

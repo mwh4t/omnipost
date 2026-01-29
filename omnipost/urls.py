@@ -22,4 +22,8 @@ urlpatterns = [
 
     # публикация постов
     path('api/publish-post/', views.publish_post, name='publish_post'),
+
+    # управление токенами vk групп
+    path('api/save-vk-group-token/', views.save_vk_group_token, name='save_vk_group_token'),
+    path('api/remove-vk-group-token/', views.remove_vk_group_token, name='remove_vk_group_token'),
 ]
