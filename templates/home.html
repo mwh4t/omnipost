@@ -74,6 +74,17 @@
                 </button>
                 <input type="file" id="fileInput" class="file-input" multiple>
                 <span class="file-name" id="fileName"></span>
+
+                {% if tg_connected %}
+                <div class="formatting-buttons">
+                    <button type="button" class="format-btn" title="Bold" onclick="insertFormatting('bold')"><b>B</b></button>
+                    <button type="button" class="format-btn" title="Italic" onclick="insertFormatting('italic')"><i>I</i></button>
+                    <button type="button" class="format-btn" title="Monospace" onclick="insertFormatting('mono')"><code>Mono</code></button>
+                    <button type="button" class="format-btn" title="Strikethrough" onclick="insertFormatting('strike')"><s>S</s></button>
+                    <button type="button" class="format-btn" title="Underline" onclick="insertFormatting('underline')"><u>U</u></button>
+                </div>
+                {% endif %}
+
                 <button type="button" class="schedule-btn" id="scheduleBtn" title="Запланировать публикацию">
                     &#128197;
                 </button>
@@ -877,6 +888,71 @@
             closeModal(scheduleModal);
         }
     });
+
+    function insertFormatting(type) {
+        const textarea = document.getElementById('postText');
+        if (!textarea) return;
+        let startTag = '', endTag = '';
+        switch(type) {
+            case 'bold':
+                startTag = '<b>';
+                endTag = '</b>';
+                break;
+            case 'italic':
+                startTag = '<i>';
+                endTag = '</i>';
+                break;
+            case 'mono':
+                startTag = '<code>';
+                endTag = '</code>';
+                break;
+            case 'strike':
+                startTag = '<s>';
+                endTag = '</s>';
+                break;
+            case 'underline':
+                startTag = '<u>';
+                endTag = '</u>';
+                break;
+        }
+        const [start, end] = [textarea.selectionStart, textarea.selectionEnd];
+        const text = textarea.value;
+        textarea.value = text.slice(0, start) + startTag + text.slice(start, end) + endTag + text.slice(end);
+        textarea.focus();
+        textarea.selectionStart = textarea.selectionEnd = end + startTag.length + endTag.length;
+    }
+
+    // Добавляем обработчик горячих клавиш для форматирования
+    (function() {
+        const textarea = document.getElementById('postText');
+        if (!textarea) return;
+        textarea.addEventListener('keydown', function(e) {
+            if ((e.metaKey || e.ctrlKey) && !e.altKey) {
+                let type = null;
+                switch (e.key.toLowerCase()) {
+                    case 'b':
+                        type = 'bold';
+                        break;
+                    case 'i':
+                        type = 'italic';
+                        break;
+                    case 'm':
+                        type = 'mono';
+                        break;
+                    case 's':
+                        type = 'strike';
+                        break;
+                    case 'u':
+                        type = 'underline';
+                        break;
+                }
+                if (type) {
+                    e.preventDefault();
+                    insertFormatting(type);
+                }
+            }
+        });
+    })();
 </script>
 </body>
 </html>

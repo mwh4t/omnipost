@@ -100,7 +100,8 @@ class PostService:
                 message = await client.send_file(
                     entity,
                     attachments,
-                    caption=text if text else None
+                    caption=text if text else None,
+                    parse_mode="HTML"
                 )
 
                 if isinstance(message, list):
@@ -110,7 +111,7 @@ class PostService:
 
             else:
                 # отправка только текста
-                message = await client.send_message(entity, text)
+                message = await client.send_message(entity, text, parse_mode="HTML")
                 message_id = str(message.id)
 
             return PostResult(
