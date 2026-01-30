@@ -7,7 +7,6 @@ import json
 import os
 from .services import AuthService, VKService, TelegramService, PostService
 
-
 # redirect uri для vk
 VK_REDIRECT_URI = config('VK_REDIRECT_URI')
 
@@ -50,6 +49,7 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
+
 # авторизация/регистрация через email и пароль
 def email_auth(request):
     if request.method != 'POST':
@@ -80,11 +80,13 @@ def email_auth(request):
 
     return redirect('home')
 
+
 # редирект на google oauth
 def google_login(request):
     redirect_uri = request.build_absolute_uri('/api/google-callback/')
     auth_url = AuthService.get_google_auth_url(redirect_uri)
     return redirect(auth_url)
+
 
 # обработка callback от google oauth
 def google_callback(request):
@@ -112,10 +114,12 @@ def google_callback(request):
 
     return redirect('home')
 
+
 # выход из аккаунта
 def logout_view(request):
     request.session.flush()
     return redirect('home')
+
 
 # редирект на vk oauth
 def vk_login(request):
@@ -134,6 +138,7 @@ def vk_login(request):
 
     auth_url = vk_service.get_auth_url(VK_REDIRECT_URI, code_challenge)
     return redirect(auth_url)
+
 
 # обработка callback от vk oauth
 def vk_callback(request):
@@ -182,6 +187,7 @@ def vk_callback(request):
 
     return redirect('home')
 
+
 # отключение vk аккаунта
 def vk_disconnect(request):
     user = request.session.get('user')
@@ -192,6 +198,7 @@ def vk_disconnect(request):
     vk_service.disconnect_account(user['uid'])
 
     return redirect('home')
+
 
 # отправка кода на телефон для tg
 def tg_send_code(request):
@@ -226,6 +233,7 @@ def tg_send_code(request):
     }
 
     return JsonResponse({'success': True, 'message': 'код отправлен'})
+
 
 # подтверждение кода для tg
 def tg_verify_code(request):
@@ -282,6 +290,7 @@ def tg_verify_code(request):
 
     return JsonResponse({'success': True, 'message': 'telegram подключен'})
 
+
 # отключение tg аккаунта
 def tg_disconnect(request):
     user = request.session.get('user')
@@ -292,6 +301,7 @@ def tg_disconnect(request):
     tg_service.disconnect_account(user['uid'])
 
     return redirect('home')
+
 
 # публикация поста
 def publish_post(request):
@@ -364,6 +374,14 @@ def publish_post(request):
             )
 
             if post_id:
+                # Сохранение в недавние посты
+                post_service.save_recent_post(user['uid'], {
+                    'text': text,
+                    'vk_groups': vk_groups,
+                    'tg_channels': tg_channels,
+                    'scheduled_time': scheduled_time
+                })
+
                 return JsonResponse({
                     'success': True,
                     'message': 'пост запланирован',
@@ -411,6 +429,14 @@ def publish_post(request):
             'errors': results['errors']
         }
 
+        # Сохранение в недавние посты если успешно
+        if results['success']:
+            post_service.save_recent_post(user['uid'], {
+                'text': text,
+                'vk_groups': vk_groups,
+                'tg_channels': tg_channels
+            })
+
         return JsonResponse(response)
 
     except Exception as e:
@@ -425,6 +451,7 @@ def publish_post(request):
                         os.remove(file_path)
                 except:
                     pass
+
 
 # сохранение токена доступа vk группы
 def save_vk_group_token(request):
@@ -563,4 +590,19 @@ def get_saved_groups(request):
         'success': True,
         'vk_groups': vk_list,
         'tg_channels': tg_list
+    })
+
+
+# получение недавних постов
+def get_recent_posts(request):
+    user = request.session.get('user')
+    if not user:
+        return JsonResponse({'success': False, 'error': 'требуется авторизация'})
+
+    post_service = PostService()
+    recent_posts = post_service.get_recent_posts(user['uid'])
+
+    return JsonResponse({
+        'success': True,
+        'posts': recent_posts
     })

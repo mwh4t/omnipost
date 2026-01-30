@@ -8,44 +8,74 @@
     <link rel="icon" type="image/png" href="{% static 'images/logo-white.png' %}">
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
 </head>
-<body>
+<body{% if user %} data-user-logged-in="true"{% endif %}>
 <header>
     <div class="header-content">
         <img src="{% static 'images/logo-white.png' %}" alt="logo" style="width: 80px; height: 80px;">
         <button class="btn-profile" id="openProfileModal">
-            <img src="{% static 'images/profile-icon.png' %}" alt="Profile" style="width: 32px; height: 32px;">
+            <img src="{% static 'images/profile-icon.png' %}" alt="Profile" style="width: 40px; height: 40px;">
         </button>
     </div>
 </header>
 
 <div class="container">
     <div class="social-section">
-        <div class="social-connect-btn{% if not vk_connected %} disabled{% endif %}" id="vkConnectBtn" {% if not vk_connected %}style="opacity:0.5;pointer-events:none;"{% endif %}>
-            <img src="{% static 'images/vk-hlogo.png' %}" alt="VK" class="social-hlogo">
-            {% if vk_connected %}
-            <div class="social-input-wrapper">
-                <input type="text" class="social-input social-group-id" placeholder="GROUP ID...">
-                <input type="text" class="social-input social-group-token" placeholder="ACCESS TOKEN...">
-                <button type="button" class="social-add-btn">+</button>
+        <div class="social-connect-wrapper">
+            <div class="social-connect-btn{% if not vk_connected %} disabled{% endif %}" id="vkConnectBtn" {% if not vk_connected %}style="opacity:0.5;pointer-events:none;"{% endif %}>
+                <!-- подсказка vk -->
+                <div class="tooltip-trigger" onclick="toggleTooltip('vkTooltip')">ⓘ</div>
+                <div class="tooltip-content" id="vkTooltip">
+                    <div class="tooltip-header">VK Limitations</div>
+                    <div class="tooltip-body">
+                        • App not yet moderated<br>
+                        • Limited functionality<br>
+                        • No image attachments<br>
+                        • No text formatting<br>
+                        • Platform restrictions apply
+                    </div>
+                </div>
+
+                <img src="{% static 'images/vk-hlogo.png' %}" alt="VK" class="social-hlogo">
+                {% if vk_connected %}
+                <div class="social-input-wrapper">
+                    <input type="text" class="social-input social-group-id" placeholder="GROUP ID...">
+                    <input type="text" class="social-input social-group-token" placeholder="ACCESS TOKEN...">
+                    <button type="button" class="social-add-btn">+</button>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
-            <button type="button" class="list-toggle-btn" id="toggleVkList" title="CHOOSE GROUPS">☰</button>
+            <button type="button" class="list-toggle-btn{% if not vk_connected %} disabled{% endif %}" id="toggleVkList" title="CHOOSE GROUPS"{% if not vk_connected %} disabled style="opacity:0.5;cursor:not-allowed;"{% endif %}>☰</button>
         </div>
 
-        <div class="social-connect-btn{% if not tg_connected %} disabled{% endif %}" id="tgConnectBtn"{% if not tg_connected %} style="opacity:0.5;pointer-events:none;"{% endif %}>
-            <img src="{% static 'images/tg-hlogo.png' %}" alt="Telegram" class="social-hlogo">
-            <div class="social-input-wrapper">
-                <input type="text" class="social-input" placeholder="CHANNEL ID...">
-                <button type="button" class="social-add-btn">+</button>
+        <div class="social-connect-wrapper">
+            <div class="social-connect-btn{% if not tg_connected %} disabled{% endif %}" id="tgConnectBtn"{% if not tg_connected %} style="opacity:0.5;pointer-events:none;"{% endif %}>
+                <!-- подсказка tg -->
+                <div class="tooltip-trigger" onclick="toggleTooltip('tgTooltip')">ⓘ</div>
+                <div class="tooltip-content" id="tgTooltip">
+                    <div class="tooltip-header">Telegram Features</div>
+                    <div class="tooltip-body">
+                        • Full functionality<br>
+                        • Image attachments supported<br>
+                        • Text formatting (Markdown)<br>
+                        • HTML support<br>
+                        • No platform restrictions
+                    </div>
+                </div>
+
+                <img src="{% static 'images/tg-hlogo.png' %}" alt="Telegram" class="social-hlogo">
+                <div class="social-input-wrapper">
+                    <input type="text" class="social-input" placeholder="CHANNEL ID...">
+                    <button type="button" class="social-add-btn">+</button>
+                </div>
             </div>
+            <button type="button" class="list-toggle-btn{% if not tg_connected %} disabled{% endif %}" id="toggleTgList" title="CHOOSE CHANNELS"{% if not tg_connected %} style="opacity:0.5;pointer-events:none;"{% endif %}>☰</button>
         </div>
-        <button type="button" class="list-toggle-btn{% if not tg_connected %} disabled{% endif %}" id="toggleTgList" title="CHOOSE CHANNELS"{% if not tg_connected %} style="opacity:0.5;pointer-events:none;"{% endif %}>☰</button>
     </div>
 
     <!-- выпадающий список vk -->
     <div id="vkDropdown" class="dropdown-panel">
         <div class="dropdown-header">
-            <span>VK Группы (<span id="vkSelectedCount">0</span> CHOSEN)</span>
+            <span>VK GROUPS (<span id="vkSelectedCount">0</span> CHOSEN)</span>
             <button class="dropdown-close" onclick="closeVkDropdown()">✕</button>
         </div>
         <div id="vkGroupsList" class="dropdown-body">
@@ -56,7 +86,7 @@
     <!-- выпадающий список tg -->
     <div id="tgDropdown" class="dropdown-panel">
         <div class="dropdown-header">
-            <span>Telegram Каналы (<span id="tgSelectedCount">0</span> CHOSEN)</span>
+            <span>TG CHANNELS (<span id="tgSelectedCount">0</span> CHOSEN)</span>
             <button class="dropdown-close" onclick="closeTgDropdown()">✕</button>
         </div>
         <div id="tgChannelsList" class="dropdown-body">
@@ -94,6 +124,14 @@
 
     <div class="publish-section">
         <button type="button" class="btn-publish" id="publishBtn">PUBLISH</button>
+    </div>
+
+    <!-- недавние посты -->
+    <div class="recent-posts-section">
+        <h3>Recent Posts</h3>
+        <div class="recent-posts-container" id="recentPostsList">
+            <div class="no-posts">NO RECENT POSTS</div>
+        </div>
     </div>
 </div>
 
@@ -159,7 +197,7 @@
 
         <div class="divider">or</div>
 
-        <a href="{% url 'google_login' %}" class="google-btn">
+        <a href="{% url 'google_login' %}" class="btn-google">
             <img src="{% static 'images/google-icon.png' %}" alt="Google" style="width: 20px; height: 20px;">
             LOGIN WITH GOOGLE
         </a>
@@ -180,7 +218,7 @@
 <div id="tgModal" class="modal">
     <div class="modal-content modal-tg">
         <span class="close-modal" id="closeTgModal">&times;</span>
-        <h3 style="color: #fff; margin-bottom: 20px; text-align: center;">CONNECT TG</h3>
+        <h3 style="margin-bottom: 20px; text-align: center; color: #ffffff;">CONNECT TG</h3>
 
         <div id="tg-error-message" class="error-message" style="display: none;"></div>
 
@@ -208,751 +246,43 @@
     </div>
 </div>
 
+<!-- модальное окно планирования -->
 <div id="scheduleModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content modal-schedule">
         <span class="close-modal" id="closeScheduleModal">&times;</span>
-        <h3>Запланировать</h3>
-        <input type="date" id="scheduleDate">
-        <input type="time" id="scheduleTime">
-            <div id="schedulePreview" style="margin: 20px 0; color: #fff; text-align: center;"></div>
-        <button id="publishNowBtn">Сейчас</button>
-        <button id="publishLaterBtn">Позже</button>
+        <h3 style="margin-bottom: 20px; text-align: center;">Schedule Publication</h3>
+
+        <div class="schedule-form">
+            <div class="input-group">
+                <label>Date</label>
+                <input type="date" id="scheduleDate" required>
+            </div>
+
+            <div class="input-group">
+                <label>Time</label>
+                <input type="time" id="scheduleTime" required>
+            </div>
+
+            <div class="schedule-info">
+                <p id="schedulePreview"></p>
+            </div>
+
+            <div class="schedule-buttons">
+                <button type="button" class="btn-schedule-now" id="publishNowBtn">Publish Now</button>
+                <button type="button" class="btn-schedule-later" id="publishLaterBtn">Schedule</button>
+            </div>
+        </div>
     </div>
 </div>
 
-<script>
-    // Состояние выбранных групп
-    let selectedVkGroups = [];
-    let selectedTgChannels = [];
-    let scheduledTime = null; // Запланированное время
-
-    // Модальное окно планирования
-    const scheduleModal = document.getElementById('scheduleModal');
-    const scheduleBtn = document.getElementById('scheduleBtn');
-    const closeScheduleModal = document.getElementById('closeScheduleModal');
-    const scheduleDateInput = document.getElementById('scheduleDate');
-    const scheduleTimeInput = document.getElementById('scheduleTime');
-    const schedulePreview = document.getElementById('schedulePreview');
-    const publishNowBtn = document.getElementById('publishNowBtn');
-    const publishLaterBtn = document.getElementById('publishLaterBtn');
-
-    // Установка минимальной даты (сегодня)
-    const today = new Date().toISOString().split('T')[0];
-    scheduleDateInput.setAttribute('min', today);
-
-    // Открытие модального окна планирования
-    if (scheduleBtn) {
-        scheduleBtn.addEventListener('click', function() {
-            scheduleModal.style.display = 'block';
-            setTimeout(() => {
-                scheduleModal.classList.add('active');
-            }, 10);
-
-            // Установка текущих даты и времени по умолчанию
-            if (!scheduleDateInput.value) {
-                scheduleDateInput.value = today;
-            }
-            if (!scheduleTimeInput.value) {
-                const now = new Date();
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                scheduleTimeInput.value = `${hours}:${minutes}`;
-            }
-            updateSchedulePreview();
-        });
-    }
-
-    // Закрытие модального окна планирования
-    if (closeScheduleModal) {
-        closeScheduleModal.addEventListener('click', () => closeModal(scheduleModal));
-    }
-
-    // Обновление превью запланированного времени
-    function updateSchedulePreview() {
-        const date = scheduleDateInput.value;
-        const time = scheduleTimeInput.value;
-
-        if (date && time) {
-            const scheduled = new Date(`${date}T${time}`);
-            const now = new Date();
-
-            if (scheduled <= now) {
-                schedulePreview.innerHTML = '<span style="color: #ff6b6b;">⚠️ Выбранное время уже прошло</span>';
-                publishLaterBtn.disabled = true;
-            } else {
-                const diff = scheduled - now;
-                const hours = Math.floor(diff / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-                const formatter = new Intl.DateTimeFormat('ru-RU', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                schedulePreview.innerHTML = `
-                    <strong>Публикация запланирована на:</strong><br>
-                    ${formatter.format(scheduled)}<br>
-                    <span style="color: #888;">(через ${hours} ч ${minutes} мин)</span>
-                `;
-                publishLaterBtn.disabled = false;
-            }
-        }
-    }
-
-    // Обновление превью при изменении даты/времени
-    if (scheduleDateInput) {
-        scheduleDateInput.addEventListener('change', updateSchedulePreview);
-    }
-    if (scheduleTimeInput) {
-        scheduleTimeInput.addEventListener('input', updateSchedulePreview);
-    }
-
-    // Публикация сейчас
-    if (publishNowBtn) {
-        publishNowBtn.addEventListener('click', function() {
-            scheduledTime = null;
-            closeModal(scheduleModal);
-            publishPost();
-        });
-    }
-
-    // Запланировать публикацию
-    if (publishLaterBtn) {
-        publishLaterBtn.addEventListener('click', function() {
-            const date = scheduleDateInput.value;
-            const time = scheduleTimeInput.value;
-
-            if (!date || !time) {
-                alert('Выберите дату и время');
-                return;
-            }
-
-            const scheduled = new Date(`${date}T${time}`);
-            const now = new Date();
-
-            if (scheduled <= now) {
-                alert('Выбранное время уже прошло');
-                return;
-            }
-
-            scheduledTime = scheduled.toISOString();
-            closeModal(scheduleModal);
-            publishPost();
-        });
-    }
-
-    // Загрузка сохраненных групп
-    async function loadSavedGroups() {
-        try {
-            const response = await fetch('{% url "get_saved_groups" %}');
-            const data = await response.json();
-
-            if (data.success) {
-                renderVkGroups(data.vk_groups);
-                renderTgChannels(data.tg_channels);
-            }
-        } catch (error) {
-            console.error('Ошибка загрузки групп:', error);
-        }
-    }
-
-    // Отрисовка VK групп
-    function renderVkGroups(groups) {
-        const container = document.getElementById('vkGroupsList');
-
-        if (groups.length === 0) {
-            container.innerHTML = '<div class="no-groups">Нет сохранённых групп</div>';
-            return;
-        }
-
-        container.innerHTML = groups.map(group => `
-            <div class="group-item">
-                <label class="group-checkbox">
-                    <input type="checkbox" value="${group.id}"
-                           onchange="toggleVkGroup('${group.id}')"
-                           ${selectedVkGroups.includes(group.id) ? 'checked' : ''}>
-                    <span>${group.name}</span>
-                </label>
-                <button class="delete-btn" onclick="deleteVkGroup('${group.id}')" title="Удалить">✕</button>
-            </div>
-        `).join('');
-    }
-
-    // Отрисовка Telegram каналов
-    function renderTgChannels(channels) {
-        const container = document.getElementById('tgChannelsList');
-
-        if (channels.length === 0) {
-            container.innerHTML = '<div class="no-groups">Нет сохранённых каналов</div>';
-            return;
-        }
-
-        container.innerHTML = channels.map(channel => `
-            <div class="group-item">
-                <label class="group-checkbox">
-                    <input type="checkbox" value="${channel.id}"
-                           onchange="toggleTgChannel('${channel.id}')"
-                           ${selectedTgChannels.includes(channel.id) ? 'checked' : ''}>
-                    <span>${channel.name}</span>
-                </label>
-                <button class="delete-btn" onclick="deleteTgChannel('${channel.id}')" title="Удалить">✕</button>
-            </div>
-        `).join('');
-    }
-
-    // Переключение VK группы
-    function toggleVkGroup(groupId) {
-        const index = selectedVkGroups.indexOf(groupId);
-        if (index > -1) {
-            selectedVkGroups.splice(index, 1);
-        } else {
-            selectedVkGroups.push(groupId);
-        }
-        updateVkCount();
-        console.log('Выбранные VK группы:', selectedVkGroups);
-    }
-
-    // Переключение Telegram канала
-    function toggleTgChannel(channelId) {
-        const index = selectedTgChannels.indexOf(channelId);
-        if (index > -1) {
-            selectedTgChannels.splice(index, 1);
-        } else {
-            selectedTgChannels.push(channelId);
-        }
-        updateTgCount();
-        console.log('Выбранные Telegram каналы:', selectedTgChannels);
-    }
-
-    // Обновление счетчика VK
-    function updateVkCount() {
-        document.getElementById('vkSelectedCount').textContent = selectedVkGroups.length;
-    }
-
-    // Обновление счетчика Telegram
-    function updateTgCount() {
-        document.getElementById('tgSelectedCount').textContent = selectedTgChannels.length;
-    }
-
-    // Открытие/закрытие VK dropdown
-    function toggleVkDropdown() {
-        const dropdown = document.getElementById('vkDropdown');
-        const isOpen = dropdown.style.display === 'block';
-        closeAllDropdowns();
-        if (!isOpen) {
-            dropdown.style.display = 'block';
-        }
-    }
-
-    function closeVkDropdown() {
-        document.getElementById('vkDropdown').style.display = 'none';
-    }
-
-    // Открытие/закрытие Telegram dropdown
-    function toggleTgDropdown() {
-        const dropdown = document.getElementById('tgDropdown');
-        const isOpen = dropdown.style.display === 'block';
-        closeAllDropdowns();
-        if (!isOpen) {
-            dropdown.style.display = 'block';
-        }
-    }
-
-    function closeTgDropdown() {
-        document.getElementById('tgDropdown').style.display = 'none';
-    }
-
-    // Закрыть все выпадающие списки
-    function closeAllDropdowns() {
-        document.getElementById('vkDropdown').style.display = 'none';
-        document.getElementById('tgDropdown').style.display = 'none';
-    }
-
-    // Удаление VK группы
-    async function deleteVkGroup(groupId) {
-        if (!confirm('Удалить эту группу?')) return;
-
-        try {
-            const response = await fetch('{% url "remove_vk_group_token" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ group_id: groupId })
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                selectedVkGroups = selectedVkGroups.filter(id => id !== groupId);
-                updateVkCount();
-                loadSavedGroups();
-            } else {
-                alert('Ошибка удаления: ' + data.error);
-            }
-        } catch (error) {
-            alert('Ошибка соединения: ' + error.message);
-        }
-    }
-
-    // Удаление Telegram канала
-    async function deleteTgChannel(channelId) {
-        if (!confirm('Удалить этот канал?')) return;
-
-        try {
-            const response = await fetch('{% url "remove_tg_channel" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ channel_id: channelId })
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                selectedTgChannels = selectedTgChannels.filter(id => id !== channelId);
-                updateTgCount();
-                loadSavedGroups();
-            } else {
-                alert('Ошибка удаления: ' + data.error);
-            }
-        } catch (error) {
-            alert('Ошибка соединения: ' + error.message);
-        }
-    }
-
-    // Инициализация кнопок toggle
-    document.getElementById('toggleVkList').addEventListener('click', toggleVkDropdown);
-    document.getElementById('toggleTgList').addEventListener('click', toggleTgDropdown);
-
-    // Загрузка при старте
-    document.addEventListener('DOMContentLoaded', function() {
-        {% if user %}
-        loadSavedGroups();
-        {% endif %}
-    });
-
-    // Закрытие при клике вне dropdown
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.dropdown-panel') &&
-            !e.target.closest('.list-toggle-btn')) {
-            closeAllDropdowns();
-        }
-    });
-
-    // файлы
-    const fileInput = document.getElementById('fileInput');
-    const fileName = document.getElementById('fileName');
-    if (fileInput) {
-        fileInput.addEventListener('change', function () {
-            if (this.files.length > 0) {
-                const names = Array.from(this.files).map(f => f.name).join(', ');
-                fileName.textContent = names;
-            } else {
-                fileName.textContent = '';
-            }
-        });
-    }
-
-    // добавление VK группы
-    const vkGroupIdInput = document.querySelector('#vkConnectBtn .social-group-id');
-    const vkGroupTokenInput = document.querySelector('#vkConnectBtn .social-group-token');
-    const vkAddBtn = document.querySelector('#vkConnectBtn .social-add-btn');
-
-    if (vkAddBtn && vkGroupIdInput && vkGroupTokenInput) {
-        vkAddBtn.addEventListener('click', async function() {
-            const groupId = vkGroupIdInput.value.trim();
-            const groupToken = vkGroupTokenInput.value.trim();
-
-            if (!groupId || !groupToken) {
-                alert('Введите ID группы и токен доступа');
-                return;
-            }
-
-            try {
-                const response = await fetch('{% url "save_vk_group_token" %}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify({
-                        group_id: groupId,
-                        group_token: groupToken
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    vkGroupIdInput.value = '';
-                    vkGroupTokenInput.value = '';
-                    alert(`VK группа ${groupId} добавлена`);
-                    loadSavedGroups();
-                } else {
-                    alert('Ошибка: ' + (data.error || 'не удалось сохранить токен'));
-                }
-            } catch (error) {
-                alert('Ошибка соединения: ' + error.message);
-            }
-        });
-    }
-
-    // добавление Telegram канала
-    const tgInput = document.querySelector('#tgConnectBtn .social-input');
-    const tgAddBtn = document.querySelector('#tgConnectBtn .social-add-btn');
-
-    if (tgAddBtn && tgInput) {
-        tgAddBtn.addEventListener('click', async function() {
-            const channelId = tgInput.value.trim();
-
-            if (!channelId) {
-                alert('Введите ID канала');
-                return;
-            }
-
-            try {
-                const response = await fetch('{% url "save_tg_channel" %}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify({
-                        channel_id: channelId,
-                        channel_name: channelId
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    tgInput.value = '';
-                    alert(`Telegram канал ${channelId} добавлен`);
-                    loadSavedGroups();
-                } else {
-                    alert('Ошибка: ' + (data.error || 'не удалось сохранить канал'));
-                }
-            } catch (error) {
-                alert('Ошибка соединения: ' + error.message);
-            }
-        });
-    }
-
-    // публикация поста
-    const publishBtn = document.getElementById('publishBtn');
-    if (publishBtn) {
-        publishBtn.addEventListener('click', function() {
-            // Открываем модальное окно планирования вместо прямой публикации
-            scheduleModal.style.display = 'block';
-            setTimeout(() => {
-                scheduleModal.classList.add('active');
-            }, 10);
-            updateSchedulePreview();
-        });
-    }
-
-    // Функция публикации поста
-    async function publishPost() {
-        const text = document.getElementById('postText').value.trim();
-        const files = fileInput.files;
-
-        if (!text && files.length === 0) {
-            alert('Добавьте текст или изображение');
-            return;
-        }
-
-        if (selectedVkGroups.length === 0 && selectedTgChannels.length === 0) {
-            alert('Выберите хотя бы одну группу VK или канал Telegram из списка');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('text', text);
-        formData.append('vk_groups', selectedVkGroups.join(','));
-        formData.append('tg_channels', selectedTgChannels.join(','));
-
-        // Добавляем запланированное время если есть
-        if (scheduledTime) {
-            formData.append('scheduled_time', scheduledTime);
-        }
-
-        for (let i = 0; i < files.length; i++) {
-            formData.append('files', files[i]);
-        }
-
-        publishBtn.disabled = true;
-        publishBtn.textContent = scheduledTime ? 'ПЛАНИРОВАНИЕ...' : 'ПУБЛИКАЦИЯ...';
-
-        try {
-            const response = await fetch('{% url "publish_post" %}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: formData
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                if (scheduledTime) {
-                    alert('Пост запланирован! Он будет опубликован в указанное время.');
-                } else {
-                    alert('Пост успешно опубликован!');
-                }
-
-                document.getElementById('postText').value = '';
-                fileInput.value = '';
-                fileName.textContent = '';
-
-                // Снимаем выбор
-                selectedVkGroups = [];
-                selectedTgChannels = [];
-                scheduledTime = null;
-                updateVkCount();
-                updateTgCount();
-                loadSavedGroups();
-            } else {
-                let errorMsg = scheduledTime ? 'Ошибка планирования:\n' : 'Ошибка публикации:\n';
-
-                if (data.errors && data.errors.length > 0) {
-                    errorMsg += data.errors.join('\n');
-                } else {
-                    errorMsg += data.error || 'Неизвестная ошибка';
-                }
-
-                alert(errorMsg);
-            }
-        } catch (error) {
-            alert('Ошибка соединения: ' + error.message);
-        } finally {
-            publishBtn.disabled = false;
-            publishBtn.textContent = 'PUBLISH';
-        }
-    }
-
-    // модальное окно профиля
-    const profileModal = document.getElementById('profileModal');
-    const openProfileBtn = document.getElementById('openProfileModal');
-    const closeProfileBtn = document.getElementById('closeProfileModal');
-
-    if (openProfileBtn) {
-        openProfileBtn.addEventListener('click', function() {
-            profileModal.style.display = 'block';
-            setTimeout(() => {
-                profileModal.classList.add('active');
-            }, 10);
-        });
-    }
-
-    // модальное окно telegram
-    const tgModal = document.getElementById('tgModal');
-    const openTgModalBtn = document.getElementById('openTgModal');
-    const closeTgModalBtn = document.getElementById('closeTgModal');
-
-    if (openTgModalBtn) {
-        openTgModalBtn.addEventListener('click', function() {
-            tgModal.style.display = 'block';
-            setTimeout(() => {
-                tgModal.classList.add('active');
-            }, 10);
-        });
-    }
-
-    if (closeTgModalBtn) {
-        closeTgModalBtn.addEventListener('click', () => closeModal(tgModal));
-    }
-
-    // telegram авторизация
-    const tgSendCodeBtn = document.getElementById('tgSendCodeBtn');
-    const tgVerifyCodeBtn = document.getElementById('tgVerifyCodeBtn');
-    const tgErrorMessage = document.getElementById('tg-error-message');
-
-    function showTgError(message) {
-        tgErrorMessage.textContent = message;
-        tgErrorMessage.style.display = 'block';
-    }
-
-    function hideTgError() {
-        tgErrorMessage.style.display = 'none';
-    }
-
-    if (tgSendCodeBtn) {
-        tgSendCodeBtn.addEventListener('click', async function() {
-            hideTgError();
-            const phone = document.getElementById('tgPhone').value.trim();
-
-            if (!phone) {
-                showTgError('Введите номер телефона');
-                return;
-            }
-
-            tgSendCodeBtn.disabled = true;
-            tgSendCodeBtn.textContent = 'Отправка...';
-
-            try {
-                const response = await fetch('{% url "tg_send_code" %}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify({ phone: phone })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    document.getElementById('tgStep1').style.display = 'none';
-                    document.getElementById('tgStep2').style.display = 'block';
-                } else {
-                    showTgError(data.error || 'Ошибка отправки кода');
-                }
-            } catch (e) {
-                showTgError('Ошибка соединения');
-            } finally {
-                tgSendCodeBtn.disabled = false;
-                tgSendCodeBtn.textContent = 'Получить код';
-            }
-        });
-    }
-
-    if (tgVerifyCodeBtn) {
-        tgVerifyCodeBtn.addEventListener('click', async function() {
-            hideTgError();
-            const code = document.getElementById('tgCode').value.trim();
-            const password = document.getElementById('tg2faPassword').value;
-
-            if (!code) {
-                showTgError('Введите код');
-                return;
-            }
-
-            tgVerifyCodeBtn.disabled = true;
-            tgVerifyCodeBtn.textContent = 'Проверка...';
-
-            try {
-                const response = await fetch('{% url "tg_verify_code" %}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify({ code: code, password: password })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    window.location.reload();
-                } else if (data.error === '2fa_required') {
-                    document.getElementById('tg2faGroup').style.display = 'block';
-                    showTgError('Требуется пароль двухфакторной аутентификации');
-                } else {
-                    showTgError(data.error || 'Ошибка верификации');
-                }
-            } catch (e) {
-                showTgError('Ошибка соединения');
-            } finally {
-                tgVerifyCodeBtn.disabled = false;
-                tgVerifyCodeBtn.textContent = 'Подтвердить';
-            }
-        });
-    }
-
-    function closeModal(modal) {
-        modal.classList.remove('active');
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 400);
-    }
-
-    if (closeProfileBtn) {
-        closeProfileBtn.addEventListener('click', () => closeModal(profileModal));
-    }
-
-    window.addEventListener('click', function(event) {
-        if (event.target === profileModal) {
-            closeModal(profileModal);
-        }
-        if (event.target === tgModal) {
-            closeModal(tgModal);
-        }
-        if (event.target === scheduleModal) {
-            closeModal(scheduleModal);
-        }
-    });
-
-    function insertFormatting(type) {
-        const textarea = document.getElementById('postText');
-        if (!textarea) return;
-        let startTag = '', endTag = '';
-        switch(type) {
-            case 'bold':
-                startTag = '<b>';
-                endTag = '</b>';
-                break;
-            case 'italic':
-                startTag = '<i>';
-                endTag = '</i>';
-                break;
-            case 'mono':
-                startTag = '<code>';
-                endTag = '</code>';
-                break;
-            case 'strike':
-                startTag = '<s>';
-                endTag = '</s>';
-                break;
-            case 'underline':
-                startTag = '<u>';
-                endTag = '</u>';
-                break;
-        }
-        const [start, end] = [textarea.selectionStart, textarea.selectionEnd];
-        const text = textarea.value;
-        textarea.value = text.slice(0, start) + startTag + text.slice(start, end) + endTag + text.slice(end);
-        textarea.focus();
-        textarea.selectionStart = textarea.selectionEnd = end + startTag.length + endTag.length;
-    }
-
-    // Добавляем обработчик горячих клавиш для форматирования
-    (function() {
-        const textarea = document.getElementById('postText');
-        if (!textarea) return;
-        textarea.addEventListener('keydown', function(e) {
-            if ((e.metaKey || e.ctrlKey) && !e.altKey) {
-                let type = null;
-                switch (e.key.toLowerCase()) {
-                    case 'b':
-                        type = 'bold';
-                        break;
-                    case 'i':
-                        type = 'italic';
-                        break;
-                    case 'm':
-                        type = 'mono';
-                        break;
-                    case 's':
-                        type = 'strike';
-                        break;
-                    case 'u':
-                        type = 'underline';
-                        break;
-                }
-                if (type) {
-                    e.preventDefault();
-                    insertFormatting(type);
-                }
-            }
-        });
-    })();
-</script>
+<footer class="footer">
+    <div class="footer-content">
+        <span>© {% now "Y" %} OmniPost</span>
+        <span>•</span>
+        <a href="https://github.com/mwh4t/omnipost" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </div>
+</footer>
+
+<script src="{% static 'js/home.js' %}"></script>
 </body>
 </html>

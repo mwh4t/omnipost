@@ -460,3 +460,62 @@ class PostService:
             return True
         except Exception:
             return False
+
+    # работа с недавними постами
+    def save_recent_post(self, uid: str, post_data: dict) -> bool:
+        import json
+        import os
+        from datetime import datetime
+
+        try:
+            # путь к файлу для пользователя
+            file_path = f'temp/recent_posts_{uid}.json'
+
+            # загрузка существующих путей
+            if os.path.exists(file_path):
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    recent_posts = json.load(f)
+            else:
+                recent_posts = []
+
+            # добавление нового поста в начало
+            new_post = {
+                'text': post_data.get('text', '')[:100] + ('...' if len(post_data.get('text', '')) > 100 else ''),
+                'vk_groups': post_data.get('vk_groups', []),
+                'tg_channels': post_data.get('tg_channels', []),
+                'scheduled_time': post_data.get('scheduled_time'),
+                'created_at': datetime.now().isoformat(),
+                'status': 'scheduled' if post_data.get('scheduled_time') else 'published'
+            }
+
+            recent_posts.insert(0, new_post)
+
+            recent_posts = recent_posts[:3]
+
+            # сохранение обратно
+            os.makedirs('temp', exist_ok=True)
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(recent_posts, f, ensure_ascii=False, indent=2)
+
+            return True
+
+        except Exception as e:
+            print(f"Ошибка сохранения недавнего поста: {e}")
+            return False
+
+    def get_recent_posts(self, uid: str) -> list:
+        import json
+        import os
+
+        try:
+            file_path = f'temp/recent_posts_{uid}.json'
+
+            if not os.path.exists(file_path):
+                return []
+
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+
+        except Exception as e:
+            print(f"Ошибка получения недавних постов: {e}")
+            return []

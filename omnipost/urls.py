@@ -33,4 +33,7 @@ urlpatterns = [
 
     # получение списка групп и каналов
     path('api/get-saved-groups/', views.get_saved_groups, name='get_saved_groups'),
+
+    # получение недавних постов
+    path('api/get-recent-posts/', views.get_recent_posts, name='get_recent_posts'),
 ]
