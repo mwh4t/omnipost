@@ -306,6 +306,7 @@ def publish_post(request):
     text = request.POST.get('text', '').strip()
     vk_groups_str = request.POST.get('vk_groups', '')
     tg_channels_str = request.POST.get('tg_channels', '')
+    scheduled_time = request.POST.get('scheduled_time', '')
 
     # парсинг списков групп/каналов
     vk_groups = [g.strip() for g in vk_groups_str.split(',') if g.strip()]
@@ -324,17 +325,58 @@ def publish_post(request):
     saved_files = []
     try:
         for uploaded_file in files:
-            # создание временного имени файла
             filename = default_storage.save(
                 f'temp/{uploaded_file.name}',
                 ContentFile(uploaded_file.read())
             )
-            # получение полного путя к файлу
             file_path = default_storage.path(filename)
             saved_files.append(file_path)
 
-        # публикация поста
         post_service = PostService()
+
+        if scheduled_time:
+            from datetime import datetime
+
+            # валидация времени
+            try:
+                scheduled_dt = datetime.fromisoformat(scheduled_time.replace('Z', '+00:00'))
+                now = datetime.now(scheduled_dt.tzinfo)
+
+                if scheduled_dt <= now:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'выбранное время уже прошло'
+                    })
+            except:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'неверный формат времени'
+                })
+
+            # сохранение запланированного поста
+            post_id = post_service.save_scheduled_post(
+                uid=user['uid'],
+                text=text,
+                vk_groups=vk_groups,
+                tg_channels=tg_channels,
+                scheduled_time=scheduled_time,
+                attachments=saved_files if saved_files else None
+            )
+
+            if post_id:
+                return JsonResponse({
+                    'success': True,
+                    'message': 'пост запланирован',
+                    'scheduled': True,
+                    'post_id': post_id
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'ошибка планирования поста'
+                })
+
+        # немедленная публикация
         results = post_service.publish_post(
             uid=user['uid'],
             text=text,
@@ -347,6 +389,7 @@ def publish_post(request):
         response = {
             'success': results['success'],
             'message': 'пост опубликован' if results['success'] else 'ошибка публикации',
+            'scheduled': False,
             'vk_results': [
                 {
                     'group_id': r.group_id,
@@ -375,12 +418,13 @@ def publish_post(request):
 
     finally:
         # удаление временных файлов
-        for file_path in saved_files:
-            try:
-                if os.path.exists(file_path):
-                    os.remove(file_path)
-            except:
-                pass
+        if not scheduled_time:
+            for file_path in saved_files:
+                try:
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                except:
+                    pass
 
 # сохранение токена доступа vk группы
 def save_vk_group_token(request):

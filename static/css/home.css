@@ -510,6 +510,21 @@ textarea::placeholder {
     color: #ffffff;
 }
 
+.schedule-btn {
+    background: #ffffff;
+    border: 3px solid #000000;
+    padding: 10px 15px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: auto;
+}
+
+.schedule-btn:hover {
+    background: #000000;
+    color: #ffffff;
+}
+
 .file-input {
     display: none;
 }
@@ -1013,4 +1028,94 @@ textarea::placeholder {
     background: #ff4444;
     color: #ffffff;
     border: none;
+}
+
+/* модальное окно планирования */
+.modal-schedule {
+    max-width: 450px;
+    background: #000000;
+    border: 5px solid #ffffff;
+}
+
+.schedule-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.schedule-info {
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #ffffff;
+    border-radius: 5px;
+    color: #ffffff;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.schedule-info p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.schedule-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-schedule-now,
+.btn-schedule-later {
+    flex: 1;
+    padding: 12px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 3px solid #ffffff;
+    transition: all 0.2s;
+}
+
+.btn-schedule-now {
+    background: #ffffff;
+    color: #000000;
+}
+
+.btn-schedule-now:hover {
+    background: #000000;
+    color: #ffffff;
+}
+
+.btn-schedule-later {
+    background: #4CAF50;
+    color: #ffffff;
+}
+
+.btn-schedule-later:hover {
+    background: #45a049;
+}
+
+.btn-schedule-later:disabled {
+    background: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    border-color: #999999;
+}
+
+.modal-schedule input[type="date"],
+.modal-schedule input[type="time"] {
+    background: #ffffff;
+    color: #000000;
+    border: 3px solid #ffffff;
+    padding: 12px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 14px;
+}
+
+.modal-schedule input[type="date"]:focus,
+.modal-schedule input[type="time"]:focus {
+    outline: none;
+    border-color: #4CAF50;
 }

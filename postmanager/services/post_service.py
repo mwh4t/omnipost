@@ -376,3 +376,86 @@ class PostService:
 
         except Exception:
             return {}
+
+    # сохранение запланированного поста
+    def save_scheduled_post(
+            self,
+            uid: str,
+            text: str,
+            vk_groups: list[str],
+            tg_channels: list[str],
+            scheduled_time: str,
+            attachments: list = None
+    ) -> str | None:
+        try:
+            from google.cloud.firestore_v1 import SERVER_TIMESTAMP
+
+            # создание документа запланированного поста
+            scheduled_post = {
+                'uid': uid,
+                'text': text,
+                'vk_groups': vk_groups,
+                'tg_channels': tg_channels,
+                'scheduled_time': scheduled_time,
+                'created_at': SERVER_TIMESTAMP,
+                'status': 'pending',
+                'attachments': attachments or []
+            }
+
+            # сохранение в коллекцию
+            doc_ref = self.firebase.db.collection('scheduled_posts').add(scheduled_post)
+
+            return doc_ref[1].id
+
+        except Exception as e:
+            print(f"Ошибка сохранения запланированного поста: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    # получение запланированных постов пользователя
+    def get_scheduled_posts(self, uid: str) -> list:
+        try:
+            posts = self.firebase.db.collection('scheduled_posts') \
+                .where('uid', '==', uid) \
+                .where('status', '==', 'pending') \
+                .order_by('scheduled_time') \
+                .stream()
+
+            result = []
+            for post in posts:
+                post_data = post.to_dict()
+                post_data['id'] = post.id
+                result.append(post_data)
+
+            return result
+
+        except Exception as e:
+            print(f"Ошибка получения запланированных постов: {e}")
+            return []
+
+    # удаление запланированного поста
+    def delete_scheduled_post(self, post_id: str) -> bool:
+        try:
+            self.firebase.db.collection('scheduled_posts').document(post_id).delete()
+            return True
+        except Exception:
+            return False
+
+    # обновление статуса запланированного поста
+    def update_scheduled_post_status(self, post_id: str, status: str, error: str = None) -> bool:
+        try:
+            from google.cloud.firestore_v1 import SERVER_TIMESTAMP
+
+            update_data = {
+                'status': status,
+                'updated_at': SERVER_TIMESTAMP
+            }
+
+            if error:
+                update_data['error'] = error
+
+            self.firebase.db.collection('scheduled_posts').document(post_id).update(update_data)
+            return True
+        except Exception:
+            return False
