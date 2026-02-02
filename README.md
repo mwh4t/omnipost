@@ -5,6 +5,12 @@
   <a href="https://github.com/mwh4t/omnipost/wiki">📘 full documentation</a>
 </p>
 
+<p align="center">
+  <strong>🌐 Live Demo:</strong><br>
+  <a href="https://omni-post.dev">omni-post.dev</a><br>
+  <sub>⚠️ VPN required from Russia (Heroku restriction)</sub>
+</p>
+
 ## tech stack
 
 - **python**: backend logic, api integrations, automation
