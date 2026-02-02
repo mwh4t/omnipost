@@ -1,2 +1,2 @@
-web: sudo python manage.py runserver
+web: gunicorn omnipost.wsgi --log-file -
 scheduler: python scheduler.py
