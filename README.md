@@ -6,9 +6,8 @@
 </p>
 
 <p align="center">
-  <strong>🌐 Live Demo:</strong><br>
+  <strong>🌐 live demo:</strong><br>
   <a href="https://omni-post.dev">omni-post.dev</a><br>
-  <sub>⚠️ VPN required from Russia (Heroku restriction)</sub>
 </p>
 
 ## tech stack
@@ -36,6 +35,9 @@
     - copy data to `.env` and fill in your api credentials for each social network you intend to use
 
 4. **run the application**
+   
+   for local development:
    ```bash
-   honcho start
+   honcho start -f Procfile.dev
    ```
+   this will run the django development server on http://localhost/
