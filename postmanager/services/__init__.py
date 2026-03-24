@@ -4,6 +4,7 @@ from .post_service import PostService
 from .user_service import UserService
 from .vk_service import VKService
 from .telegram_service import TelegramService
+from .crypto_service import CryptoService
 
 __all__ = [
     'FirebaseService',
@@ -11,5 +12,6 @@ __all__ = [
     'UserService',
     'VKService',
     'TelegramService',
-    'PostService'
+    'PostService',
+    'CryptoService'
 ]

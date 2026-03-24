@@ -5,6 +5,7 @@ import base64
 from dataclasses import dataclass
 from decouple import config
 from .firebase_service import FirebaseService
+from .crypto_service import CryptoService
 
 
 @dataclass
@@ -19,6 +20,7 @@ class VKAuthResult:
 class VKService:
     def __init__(self):
         self.firebase = FirebaseService()
+        self.crypto = CryptoService()
         self.app_id = config('VK_APP_ID')
         self.app_secret = config('VK_APP_SECRET')
 
@@ -55,7 +57,6 @@ class VKService:
         try:
             import requests
 
-            # vk id endpoint для получения токена
             response = requests.post(
                 'https://id.vk.com/oauth2/auth',
                 data={
@@ -71,7 +72,6 @@ class VKService:
                 }
             )
 
-            # проверка на пустой ответ
             if not response.text or response.text.startswith('<!'):
                 return VKAuthResult(success=False, error=f'vk_error_{response.status_code}')
 
@@ -120,37 +120,18 @@ class VKService:
         except Exception:
             return None
 
-    # # получение групп пользователя
-    # def get_admin_groups(self, access_token: str) -> list:
-    #     try:
-    #         vk_session = vk_api.VkApi(token=access_token)
-    #         vk = vk_session.get_api()
-    #
-    #         groups = vk.groups.get(filter='admin', extended=1)
-    #
-    #         return [
-    #             {
-    #                 'id': group['id'],
-    #                 'name': group['name'],
-    #                 'screen_name': group['screen_name'],
-    #                 'photo': group.get('photo_100', ''),
-    #             }
-    #             for group in groups.get('items', [])
-    #         ]
-    #
-    #     except Exception:
-    #         return []
-
     # сохранение vk аккаунта в firestore
     def save_account(self, uid: str, vk_data: dict) -> bool:
         try:
             doc_ref = self.firebase.db.collection('users').document(uid)
 
+            encrypted_token = self.crypto.encrypt(vk_data['access_token'])
+
             doc_ref.update({
                 'vk_connected': True,
                 'vk_account': {
                     'user_id': vk_data['user_id'],
-                    'access_token': vk_data['access_token'],
+                    'access_token': encrypted_token,
                     'user_info': vk_data.get('user_info', {}),
                 }
             })
@@ -186,7 +167,24 @@ class VKService:
                 return None
 
             data = doc.to_dict()
-            return data.get('vk_account') if data.get('vk_connected') else None
+
+            if not data.get('vk_connected'):
+                return None
+
+            account = data.get('vk_account')
+            if not account:
+                return None
+
+            encrypted_token = account.get('access_token')
+            if encrypted_token:
+                decrypted = self.crypto.decrypt(encrypted_token)
+                if decrypted:
+                    account = dict(account)
+                    account['access_token'] = decrypted
+                else:
+                    return None
+
+            return account
 
         except Exception:
             return None

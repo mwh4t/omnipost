@@ -4,6 +4,7 @@ from decouple import config
 from telethon import TelegramClient
 from telethon.sessions import StringSession
 from .firebase_service import FirebaseService
+from .crypto_service import CryptoService
 
 
 @dataclass
@@ -19,6 +20,7 @@ class TGAuthResult:
 class TelegramService:
     def __init__(self):
         self.firebase = FirebaseService()
+        self.crypto = CryptoService()
         self.api_id = int(config('TELEGRAM_API_ID'))
         self.api_hash = config('TELEGRAM_API_HASH')
 
@@ -39,7 +41,6 @@ class TelegramService:
 
             result = await client.send_code_request(phone)
 
-            # сохраняем сессию для последующего использования
             session_string = client.session.save()
 
             return {
@@ -88,7 +89,6 @@ class TelegramService:
                     phone_code_hash=phone_code_hash
                 )
             except Exception as e:
-                # 2fa
                 if 'password' in str(e).lower() or 'two-step' in str(e).lower():
                     if password:
                         user = await client.sign_in(password=password)
@@ -100,7 +100,6 @@ class TelegramService:
                 else:
                     raise e
 
-            # сохранение авторизованной сессии
             final_session = client.session.save()
 
             return TGAuthResult(
@@ -171,55 +170,17 @@ class TelegramService:
         finally:
             loop.close()
 
-    # # получение каналов где пользователь админ
-    # async def _get_admin_channels_async(self, session_string: str) -> list:
-    #     client = self._create_client(session_string)
-    #
-    #     try:
-    #         await client.connect()
-    #
-    #         if not await client.is_user_authorized():
-    #             return []
-    #
-    #         from telethon.tl.functions.channels import GetAdminedPublicChannelsRequest
-    #
-    #         result = await client(GetAdminedPublicChannelsRequest())
-    #
-    #         channels = []
-    #         for chat in result.chats:
-    #             channels.append({
-    #                 'id': chat.id,
-    #                 'title': chat.title,
-    #                 'username': getattr(chat, 'username', ''),
-    #             })
-    #
-    #         return channels
-    #
-    #     except Exception:
-    #         return []
-    #
-    #     finally:
-    #         await client.disconnect()
-    #
-    # # синхронная обёртка для получения каналов
-    # def get_admin_channels(self, session_string: str) -> list:
-    #     loop = asyncio.new_event_loop()
-    #     asyncio.set_event_loop(loop)
-    #
-    #     try:
-    #         return loop.run_until_complete(self._get_admin_channels_async(session_string))
-    #     finally:
-    #         loop.close()
-
     # сохранение tg аккаунта в firestore
     def save_account(self, uid: str, tg_data: dict) -> bool:
         try:
             doc_ref = self.firebase.db.collection('users').document(uid)
 
+            encrypted_session = self.crypto.encrypt(tg_data['session_string'])
+
             doc_ref.update({
                 'tg_connected': True,
                 'tg_account': {
-                    'session_string': tg_data['session_string'],
+                    'session_string': encrypted_session,
                     'user_id': tg_data['user_id'],
                     'phone': tg_data.get('phone', ''),
                     'user_info': tg_data.get('user_info', {}),
@@ -257,7 +218,24 @@ class TelegramService:
                 return None
 
             data = doc.to_dict()
-            return data.get('tg_account') if data.get('tg_connected') else None
+
+            if not data.get('tg_connected'):
+                return None
+
+            account = data.get('tg_account')
+            if not account:
+                return None
+
+            encrypted_session = account.get('session_string')
+            if encrypted_session:
+                decrypted = self.crypto.decrypt(encrypted_session)
+                if decrypted:
+                    account = dict(account)
+                    account['session_string'] = decrypted
+                else:
+                    return None
+
+            return account
 
         except Exception:
             return None
