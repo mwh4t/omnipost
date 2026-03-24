@@ -277,12 +277,19 @@ def tg_verify_code(request):
     # получение информации о пользователе tg
     user_info = tg_service.get_me(result.session_string)
 
+    # получение информации о пользователе tg
+    user_info = tg_service.get_me(result.session_string)
+
+    # получение каналов
+    admin_channels = tg_service.get_admin_channels(result.session_string)
+
     # сохранение в firestore
     tg_service.save_account(user['uid'], {
         'session_string': result.session_string,
         'user_id': result.user_id,
         'phone': result.phone,
         'user_info': user_info or {},
+        'channels': admin_channels,
     })
 
     # очистка временных данных

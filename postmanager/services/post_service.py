@@ -58,81 +58,6 @@ class PostService:
             )
 
     # публикация поста в tg канал
-    async def _publish_to_telegram_async(
-            self,
-            session_string: str,
-            channel_id: str,
-            text: str,
-            attachments: list = None
-    ) -> PostResult:
-        client = TelegramClient(
-            StringSession(session_string),
-            int(config('TELEGRAM_API_ID')),
-            config('TELEGRAM_API_HASH')
-        )
-
-        try:
-            await client.connect()
-
-            if not await client.is_user_authorized():
-                return PostResult(
-                    success=False,
-                    platform='telegram',
-                    group_id=channel_id,
-                    error='не авторизован'
-                )
-
-            if channel_id.startswith('@'):
-                entity = channel_id
-            elif channel_id.startswith('-100'):
-                entity = int(channel_id)
-            elif channel_id.startswith('-'):
-                entity = int(channel_id)
-            else:
-                try:
-                    entity = int(f"-100{channel_id}")
-                except ValueError:
-                    entity = channel_id
-
-            # отправка поста
-            if attachments and len(attachments) > 0:
-                # отправка с изображениями
-                message = await client.send_file(
-                    entity,
-                    attachments,
-                    caption=text if text else None,
-                    parse_mode="HTML"
-                )
-
-                if isinstance(message, list):
-                    message_id = str(message[0].id) if message else None
-                else:
-                    message_id = str(message.id)
-
-            else:
-                # отправка только текста
-                message = await client.send_message(entity, text, parse_mode="HTML")
-                message_id = str(message.id)
-
-            return PostResult(
-                success=True,
-                platform='telegram',
-                group_id=channel_id,
-                post_id=message_id
-            )
-
-        except Exception as e:
-            return PostResult(
-                success=False,
-                platform='telegram',
-                group_id=channel_id,
-                error=str(e)
-            )
-
-        finally:
-            await client.disconnect()
-
-    # синхронная обёртка для публикации в tg
     def publish_to_telegram(
             self,
             session_string: str,
@@ -140,16 +65,22 @@ class PostService:
             text: str,
             attachments: list = None
     ) -> PostResult:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        result = self.tg_service.publish(session_string, channel_id, text, attachments)
 
-        try:
-            return loop.run_until_complete(
-                self._publish_to_telegram_async(session_string, channel_id,
-                                                text, attachments)
+        if result['success']:
+            return PostResult(
+                success=True,
+                platform='telegram',
+                group_id=channel_id,
+                post_id=result.get('message_id')
             )
-        finally:
-            loop.close()
+        else:
+            return PostResult(
+                success=False,
+                platform='telegram',
+                group_id=channel_id,
+                error=result.get('error')
+            )
 
     # публикация поста во все указанные группы/каналы
     def publish_post(
