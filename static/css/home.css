@@ -993,72 +993,158 @@ textarea::placeholder {
 }
 
 .error-message {
-    background: #ffffff;
-    color: #000000;
-    padding: 12px;
-    border: 3px solid #000000;
+    background: #ff3333;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
     margin-bottom: 20px;
-    font-size: 14px;
     text-align: center;
+    font-size: 14px;
 }
 
-/* модальное окно tg */
-.modal-tg {
-    max-width: 400px;
-    background: #1a1a1a;
+/* окно тг */
+.modal-tg-modern {
+    background: #1c1c1d;
+    margin: 10% auto;
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    width: 90%;
+    max-width: 360px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #ffffff;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.modal-tg .input-group {
-    margin-bottom: 20px;
+.modal.active .modal-tg-modern {
+    opacity: 1;
+    transform: translateY(0);
 }
 
-.modal-tg .input-group label {
+.modal-tg-modern .close-modal {
+    color: #87878c;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    font-size: 24px;
+    z-index: 10;
+    cursor: pointer;
+    font-weight: 300;
+}
+
+.modal-tg-modern .close-modal:hover {
     color: #ffffff;
 }
 
-.modal-tg .input-group input {
-    background: #2a2a2a;
-    border: 2px solid #444;
+.tg-auth-header {
+    text-align: center;
+    padding: 40px 30px 20px;
+}
+
+.tg-logo-circle {
+    width: 80px;
+    height: 80px;
+    background: #3390ec;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tg-logo-circle img {
+    width: 45px;
+    height: 45px;
+    filter: brightness(0) invert(1);
+}
+
+.tg-auth-header h3 {
+    margin: 0 0 10px 0;
+    font-size: 20px;
+    font-weight: 600;
     color: #ffffff;
 }
 
-.modal-tg .input-group input:focus {
-    border-color: #0088cc;
+.tg-subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: #aaaaaa;
+    line-height: 1.5;
+}
+
+.tg-step {
+    padding: 0 30px 40px;
+}
+
+.tg-input-wrap {
+    position: relative;
+    background: #2c2c2e;
+    border-radius: 10px;
+    padding: 8px 15px;
+    border: 1px solid #2c2c2e;
+    transition: border-color 0.2s;
+}
+
+.tg-input-wrap:focus-within {
+    border-color: #3390ec;
+}
+
+.tg-input-label {
+    display: block;
+    font-size: 12px;
+    color: #3390ec;
+    margin-bottom: 2px;
+}
+
+.tg-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 16px;
+    padding: 0;
     outline: none;
+    box-shadow: none;
 }
 
-.modal-tg .input-group input::placeholder {
-    color: #888;
+.tg-input::placeholder {
+    color: #666666;
 }
 
-.modal-tg .btn-login {
-    background: #0088cc;
-    border-color: #0088cc;
+.tg-btn-primary {
+    width: 100%;
+    background: #3390ec;
     color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 25px;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-transform: uppercase;
 }
 
-.modal-tg .btn-login:hover {
-    background: #006699;
-    border-color: #006699;
+.tg-btn-primary:hover {
+    background: #2b7dd1;
 }
 
-.modal-tg .btn-login:disabled {
-    background: #555;
-    border-color: #555;
+.tg-btn-primary:disabled {
+    opacity: 0.7;
     cursor: not-allowed;
 }
 
-.modal-tg .error-message {
-    background: #ff4444;
-    color: #ffffff;
-    border: none;
-}
-
-/* модальное окно планирования */
-.modal-schedule {
-    max-width: 450px;
-    background: #ffffff;
-    border: 3px solid #000000;
+.modal-tg-modern #tg-error-message {
+    margin: 0 30px 15px;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
 }
 
 .schedule-form {
@@ -1414,6 +1500,72 @@ textarea::placeholder {
 .btn-schedule-later:disabled {
     background: #cccccc;
     cursor: not-allowed;
+}
+
+/* превью прикреплённых файлов */
+.file-preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 30px;
+    border-top: 2px solid #e0e0e0;
+}
+
+.file-preview-container:empty {
+    display: none;
+}
+
+.file-preview-item {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border: 2px solid #000000;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.file-preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.file-preview-item .file-preview-name {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    text-align: center;
+    padding: 4px;
+    background: #f5f5f5;
+    word-break: break-all;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.file-preview-remove {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    background: #000000;
+    color: #ffffff;
+    border: none;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+}
+
+.file-preview-remove:hover {
+    background: #333333;
 }
 
 /* мобильная адаптация */

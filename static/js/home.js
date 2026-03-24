@@ -3,6 +3,7 @@ let selectedVkGroups = [];
 let selectedTgChannels = [];
 let scheduledTime = null;
 
+
 // функции
 function closeModal(modal) {
     modal.classList.remove('active');
@@ -349,7 +350,7 @@ async function publishPost() {
     if (!postText || !fileInput || !publishBtn) return;
 
     const text = postText.value.trim();
-    const files = fileInput.files;
+    const files = selectedFiles;
 
     if (!text && files.length === 0) {
         alert('Add text or image');
@@ -406,6 +407,9 @@ async function publishPost() {
             updateTgCount();
             loadSavedGroups();
             loadRecentPosts();
+
+            selectedFiles = [];
+            renderFilePreviews();
         } else {
             let errorMsg = scheduledTime ? 'Scheduling error:\n' : 'Publishing error:\n';
 
@@ -593,15 +597,58 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // файлы
-    if (fileInput && fileName) {
-        fileInput.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                const names = Array.from(this.files).map(f => f.name).join(', ');
-                fileName.textContent = names;
-            } else {
-                fileName.textContent = '';
-            }
+    let selectedFiles = [];  // храним файлы как массив
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function () {
+            Array.from(this.files).forEach(file => {
+                selectedFiles.push(file);
+            });
+            this.value = '';
+            renderFilePreviews();
         });
+    }
+
+    function renderFilePreviews() {
+        const container = document.getElementById('filePreviewContainer');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        selectedFiles.forEach((file, index) => {
+            const item = document.createElement('div');
+            item.className = 'file-preview-item';
+
+            if (file.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.onload = () => URL.revokeObjectURL(img.src);
+                item.appendChild(img);
+            } else {
+                const name = document.createElement('div');
+                name.className = 'file-preview-name';
+                name.textContent = file.name;
+                item.appendChild(name);
+            }
+
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'file-preview-remove';
+            removeBtn.innerHTML = '✕';
+            removeBtn.title = 'Удалить';
+            removeBtn.onclick = () => {
+                selectedFiles.splice(index, 1);
+                renderFilePreviews();
+            };
+
+            item.appendChild(removeBtn);
+            container.appendChild(item);
+        });
+
+        if (fileName) {
+            fileName.textContent = selectedFiles.length > 0
+                ? `${selectedFiles.length} файл(ов)`
+                : '';
+        }
     }
 
     // добавление vk группы
@@ -760,6 +807,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     const tgStep1 = document.getElementById('tgStep1');
                     const tgStep2 = document.getElementById('tgStep2');
+                    
+                    const tgSubtitle = document.getElementById('tgSubtitle');
+                    if(tgSubtitle) {
+                        tgSubtitle.textContent = `We've sent a code to ${phone}. Please enter it below.`;
+                    }
+
                     if (tgStep1) tgStep1.style.display = 'none';
                     if (tgStep2) tgStep2.style.display = 'block';
                 } else {
@@ -775,7 +828,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } finally {
                 tgSendCodeBtn.disabled = false;
-                tgSendCodeBtn.textContent = 'GET CODE';
+                tgSendCodeBtn.textContent = 'NEXT';
             }
         });
     }
@@ -802,7 +855,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             tgVerifyCodeBtn.disabled = true;
-            tgVerifyCodeBtn.textContent = 'VERIFYING...';
+            tgVerifyCodeBtn.textContent = 'PLEASE WAIT...';
 
             try {
                 const response = await fetch('/api/tg-verify-code/', {
@@ -821,6 +874,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (data.error === '2fa_required') {
                     const tg2faGroup = document.getElementById('tg2faGroup');
                     if (tg2faGroup) tg2faGroup.style.display = 'block';
+                    
+                    const tgSubtitle = document.getElementById('tgSubtitle');
+                    if(tgSubtitle) {
+                        tgSubtitle.textContent = `This account requires a Two-Step Verification password.`;
+                    }
+
                     if (tgErrorMessage) {
                         tgErrorMessage.textContent = '2FA password required';
                         tgErrorMessage.style.display = 'block';
@@ -837,8 +896,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     tgErrorMessage.style.display = 'block';
                 }
             } finally {
-                tgVerifyCodeBtn.disabled = false;
-                tgVerifyCodeBtn.textContent = 'CONFIRM';
+                if (!tgVerifyCodeBtn.disabled || tgVerifyCodeBtn.textContent === 'PLEASE WAIT...') {
+                    tgVerifyCodeBtn.disabled = false;
+                    tgVerifyCodeBtn.textContent = 'SIGN IN';
+                }
             }
         });
     }

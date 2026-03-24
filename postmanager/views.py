@@ -6,6 +6,7 @@ from decouple import config
 import json
 import os
 from .services import AuthService, VKService, TelegramService, PostService
+from django.http import HttpResponse
 
 # redirect uri для vk
 VK_REDIRECT_URI = config('VK_REDIRECT_URI')
@@ -143,6 +144,7 @@ def vk_login(request):
 # обработка callback от vk oauth
 def vk_callback(request):
     user = request.session.get('user')
+    
     if not user:
         return redirect('/?error=требуется_авторизация')
 
@@ -150,8 +152,11 @@ def vk_callback(request):
     device_id = request.GET.get('device_id')
     error = request.GET.get('error')
 
+    import urllib.parse
+
     if error:
-        return redirect(f'/?error=vk_{error}')
+        safe_error = urllib.parse.quote(str(error))
+        return redirect(f'/?error=vk_{safe_error}')
 
     if not code:
         return redirect('/?error=vk_no_code')
@@ -172,8 +177,8 @@ def vk_callback(request):
     request.session.pop('vk_code_verifier', None)
 
     if not result.success:
-        from urllib.parse import quote
-        return redirect(f'/?error={quote(result.error)}')
+        safe_error = urllib.parse.quote(str(result.error))
+        return redirect(f'/?error={safe_error}')
 
     # получение информации о пользователе vk
     user_info = vk_service.get_user_info(result.access_token)
@@ -307,8 +312,23 @@ def tg_disconnect(request):
     tg_service = TelegramService()
     tg_service.disconnect_account(user['uid'])
 
-    return redirect('home')
-
+    return HttpResponse("""
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"></head>
+    <body>
+    <script>
+    if (window.opener && !window.opener.closed) {
+        window.opener.location.reload();
+        window.close();
+    } else {
+        window.location.href = '/';
+    }
+    </script>
+    <p>Авторизация прошла успешно. Закрываем окно...</p>
+    </body>
+    </html>
+    """)
 
 # публикация поста
 def publish_post(request):

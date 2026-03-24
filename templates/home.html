@@ -98,6 +98,8 @@
         <div class="editor-wrapper">
             <textarea id="postText" placeholder="WRITE YOUR POST HERE..."></textarea>
 
+            <div id="filePreviewContainer" class="file-preview-container"></div>
+
             <div class="attachment-bar">
                 <button type="button" class="attach-btn" onclick="document.getElementById('fileInput').click()">
                     &#128206; ATTACH FILE
@@ -163,7 +165,7 @@
                     <img src="{% static 'images/tgoff-icon.png' %}" alt="Telegram" class="icon-hover">
                 </a>
                 {% else %}
-                <button type="button" class="social-login-btn tg" id="openTgModal" title="CONNECT TG">
+                <button type="button" class="social-login-btn tg" id="openTgModal" title="CONNECT TG" style="cursor: pointer;">
                     <img src="{% static 'images/tg-icon.png' %}" alt="Telegram">
                 </button>
                 {% endif %}
@@ -216,32 +218,38 @@
 
 <!-- модальное окно tg авторизации -->
 <div id="tgModal" class="modal">
-    <div class="modal-content modal-tg">
+    <div class="modal-content modal-tg-modern">
         <span class="close-modal" id="closeTgModal">&times;</span>
-        <h3 style="margin-bottom: 20px; text-align: center; color: #ffffff;">CONNECT TG</h3>
+        <div class="tg-auth-header">
+            <div class="tg-logo-circle">
+                <img src="{% static 'images/tg-icon.png' %}" alt="Telegram">
+            </div>
+            <h3>Sign in to Telegram</h3>
+            <p class="tg-subtitle" id="tgSubtitle">Please enter your phone number in the international format.</p>
+        </div>
 
         <div id="tg-error-message" class="error-message" style="display: none;"></div>
 
         <!-- ввод номера телефона -->
-        <div id="tgStep1">
-            <div class="input-group">
-                <label>PHONE NUMBER</label>
-                <input type="tel" id="tgPhone" placeholder="+7 999 123 4567" required>
+        <div id="tgStep1" class="tg-step">
+            <div class="tg-input-wrap">
+                <span class="tg-input-label">Phone Number</span>
+                <input type="tel" id="tgPhone" class="tg-input" placeholder="+1 234 567 89 00" required>
             </div>
-            <button type="button" class="btn-login" id="tgSendCodeBtn" style="width: 100%;">GET THE CODE</button>
+            <button type="button" class="tg-btn-primary" id="tgSendCodeBtn">NEXT</button>
         </div>
 
         <!-- ввод кода -->
-        <div id="tgStep2" style="display: none;">
-            <div class="input-group">
-                <label>TG code</label>
-                <input type="text" id="tgCode" placeholder="12345" required>
+        <div id="tgStep2" class="tg-step" style="display: none;">
+            <div class="tg-input-wrap">
+                <span class="tg-input-label">Code</span>
+                <input type="text" id="tgCode" class="tg-input" placeholder="Your code" autocomplete="off" required>
             </div>
-            <div class="input-group" id="tg2faGroup" style="display: none;">
-                <label>PASSWORD 2FA</label>
-                <input type="password" id="tg2faPassword" placeholder="YOUR PASSWORD">
+            <div class="tg-input-wrap" id="tg2faGroup" style="display: none; margin-top: 15px;">
+                <span class="tg-input-label">Password</span>
+                <input type="password" id="tg2faPassword" class="tg-input" placeholder="2FA Password">
             </div>
-            <button type="button" class="btn-login" id="tgVerifyCodeBtn" style="width: 100%;">CONFIRM</button>
+            <button type="button" class="tg-btn-primary" id="tgVerifyCodeBtn">SIGN IN</button>
         </div>
     </div>
 </div>
