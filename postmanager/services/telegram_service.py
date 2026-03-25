@@ -27,10 +27,25 @@ class TelegramService:
 
     # создание нового клиента
     def _create_client(self, session_string: str = '') -> TelegramClient:
+        import socks
+
+        proxy = None
+        proxy_host = config('TG_PROXY_HOST', default='')
+        if proxy_host:
+            proxy = (
+                socks.SOCKS5,
+                proxy_host,
+                int(config('TG_PROXY_PORT', default='1080')),
+                True,
+                config('TG_PROXY_USER', default=None),
+                config('TG_PROXY_PASS', default=None),
+            )
+
         return TelegramClient(
             StringSession(session_string),
             self.api_id,
-            self.api_hash
+            self.api_hash,
+            proxy=proxy,
         )
 
     # отправка кода подтверждения на телефон

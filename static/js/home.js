@@ -2,7 +2,38 @@
 let selectedVkGroups = [];
 let selectedTgChannels = [];
 let scheduledTime = null;
+let selectedFiles = [];
 
+function renderFilePreviews() {
+    const container = document.getElementById('filePreviewContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    const fileName = document.getElementById('fileName');
+
+    selectedFiles.forEach((file, index) => {
+        const item = document.createElement('div');
+        item.className = 'file-preview-item';
+        if (file.type.startsWith('image/')) {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.onload = () => URL.revokeObjectURL(img.src);
+            item.appendChild(img);
+        } else {
+            const name = document.createElement('div');
+            name.className = 'file-preview-name';
+            name.textContent = file.name;
+            item.appendChild(name);
+        }
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'file-preview-remove';
+        removeBtn.innerHTML = '✕';
+        removeBtn.onclick = () => { selectedFiles.splice(index, 1); renderFilePreviews(); };
+        item.appendChild(removeBtn);
+        container.appendChild(item);
+    });
+
+    if (fileName) fileName.textContent = selectedFiles.length > 0 ? `${selectedFiles.length} файл(ов)` : '';
+}
 
 // функции
 function closeModal(modal) {
@@ -597,59 +628,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // файлы
-    let selectedFiles = [];  // храним файлы как массив
-
     if (fileInput) {
         fileInput.addEventListener('change', function () {
-            Array.from(this.files).forEach(file => {
-                selectedFiles.push(file);
-            });
+            Array.from(this.files).forEach(file => selectedFiles.push(file));
             this.value = '';
             renderFilePreviews();
         });
     }
 
-    function renderFilePreviews() {
-        const container = document.getElementById('filePreviewContainer');
-        if (!container) return;
-
-        container.innerHTML = '';
-
-        selectedFiles.forEach((file, index) => {
-            const item = document.createElement('div');
-            item.className = 'file-preview-item';
-
-            if (file.type.startsWith('image/')) {
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                img.onload = () => URL.revokeObjectURL(img.src);
-                item.appendChild(img);
-            } else {
-                const name = document.createElement('div');
-                name.className = 'file-preview-name';
-                name.textContent = file.name;
-                item.appendChild(name);
-            }
-
-            const removeBtn = document.createElement('button');
-            removeBtn.className = 'file-preview-remove';
-            removeBtn.innerHTML = '✕';
-            removeBtn.title = 'Удалить';
-            removeBtn.onclick = () => {
-                selectedFiles.splice(index, 1);
-                renderFilePreviews();
-            };
-
-            item.appendChild(removeBtn);
-            container.appendChild(item);
-        });
-
-        if (fileName) {
-            fileName.textContent = selectedFiles.length > 0
-                ? `${selectedFiles.length} файл(ов)`
-                : '';
-        }
-    }
 
     // добавление vk группы
     if (vkAddBtn && vkGroupIdInput && vkGroupTokenInput) {

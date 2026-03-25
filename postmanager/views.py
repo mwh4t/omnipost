@@ -6,7 +6,6 @@ from decouple import config
 import json
 import os
 from .services import AuthService, VKService, TelegramService, PostService
-from django.http import HttpResponse
 
 # redirect uri для vk
 VK_REDIRECT_URI = config('VK_REDIRECT_URI')
@@ -282,8 +281,6 @@ def tg_verify_code(request):
     # получение информации о пользователе tg
     user_info = tg_service.get_me(result.session_string)
 
-    # получение информации о пользователе tg
-    user_info = tg_service.get_me(result.session_string)
 
     # получение каналов
     admin_channels = tg_service.get_admin_channels(result.session_string)
@@ -312,23 +309,7 @@ def tg_disconnect(request):
     tg_service = TelegramService()
     tg_service.disconnect_account(user['uid'])
 
-    return HttpResponse("""
-    <!DOCTYPE html>
-    <html>
-    <head><meta charset="utf-8"></head>
-    <body>
-    <script>
-    if (window.opener && !window.opener.closed) {
-        window.opener.location.reload();
-        window.close();
-    } else {
-        window.location.href = '/';
-    }
-    </script>
-    <p>Авторизация прошла успешно. Закрываем окно...</p>
-    </body>
-    </html>
-    """)
+    return redirect('home')
 
 # публикация поста
 def publish_post(request):
