@@ -1853,6 +1853,8 @@ textarea::placeholder {
 }
 
 .btn-google {
+    background: transparent !important;
+    color: var(--text-main) !important;
     border-radius: 10px !important;
     display: flex !important;
     align-items: center !important;
@@ -2012,7 +2014,7 @@ textarea::placeholder {
 .tooltip-body { color: var(--text-main) !important; }
 
 .group-item { background: var(--bg-surface) !important; color: var(--text-main) !important; border: 1px solid var(--border-color) !important; }
-.group-item:hover { background: var(--border-color) !important; }
+.group-item:hover { background: var(--border-color) !important; color: var(--bg-main) !important; }
 
 .group-checkbox span, .group-checkbox label { color: var(--text-main) !important; }
 
@@ -2035,7 +2037,7 @@ textarea::placeholder {
 .modal-profile .close-modal { color: var(--text-main) !important; }
 .modal-profile .close-modal:hover { color: var(--text-muted) !important; opacity: 1 !important; }
 
-.group-checkbox label:hover, .group-item:hover label, .group-item:hover span {
+.group-checkbox label:hover, .group-item:hover label, .group-item:hover span { color: var(--bg-main) !important;
     outline: none !important;
     border: none !important;
     box-shadow: none !important;
@@ -2045,7 +2047,7 @@ textarea::placeholder {
     border: 1px solid var(--border-color) !important;
 }
 .group-item:hover {
-    background: var(--border-color) !important;
+    background: var(--border-color) !important; color: var(--bg-main) !important;
 }
 
 .btn-publish:hover, .btn-schedule-now:hover, .btn-schedule-later:hover, .btn-login:hover, .btn-register:hover, .btn-logout:hover, .ui-btn:hover {
