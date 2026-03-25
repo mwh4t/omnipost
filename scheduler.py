@@ -14,66 +14,60 @@ from postmanager.services import PostService
 
 def process_scheduled_posts():
     post_service = PostService()
+    now = datetime.now(timezone.utc)
 
     try:
-        # получение всех постов
-        scheduled_posts_ref = post_service.firebase.db.collection('scheduled_posts') \
-            .where('status', '==', 'pending') \
-            .stream()
-
-        now = datetime.now(timezone.utc)
-
-        for post_doc in scheduled_posts_ref:
-            post_data = post_doc.to_dict()
-            post_id = post_doc.id
-
-            # проверка времени публикации
-            scheduled_time_str = post_data.get('scheduled_time')
-            if not scheduled_time_str:
-                continue
-
-            try:
-                scheduled_time = datetime.fromisoformat(scheduled_time_str.replace('Z', '+00:00'))
-            except:
-                print(f"Ошибка парсинга времени для поста {post_id}")
-                continue
-
-            if scheduled_time <= now:
-                print(f"Публикация поста {post_id}...")
-
-                # публикация
-                results = post_service.publish_post(
-                    uid=post_data.get('uid'),
-                    text=post_data.get('text', ''),
-                    vk_groups=post_data.get('vk_groups', []),
-                    tg_channels=post_data.get('tg_channels', []),
-                    attachments=post_data.get('attachments')
-                )
-
-                # обновление статуса
-                if results['success']:
-                    post_service.update_scheduled_post_status(post_id, 'published')
-                    print(f"Пост {post_id} успешно опубликован")
-                else:
-                    error_msg = ', '.join(results.get('errors', []))
-                    post_service.update_scheduled_post_status(post_id, 'failed', error_msg)
-                    print(f"Ошибка публикации поста {post_id}: {error_msg}")
-
-                # удаление временных файлов
-                attachments = post_data.get('attachments', [])
-                if attachments:
-                    for file_path in attachments:
-                        try:
-                            if os.path.exists(file_path):
-                                os.remove(file_path)
-                                print(f"Удален временный файл: {file_path}")
-                        except Exception as e:
-                            print(f"Ошибка удаления файла {file_path}: {e}")
-
+        pending_posts = post_service.get_all_pending_posts()
     except Exception as e:
-        print(f"Ошибка обработки запланированных постов: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"Ошибка получения постов: {e}")
+        return
+
+    for post_data in pending_posts:
+        post_id = post_data.get('id')
+
+        scheduled_time_str = post_data.get('scheduled_time')
+        if not scheduled_time_str:
+            continue
+
+        try:
+            scheduled_time = datetime.fromisoformat(scheduled_time_str.replace('Z', '+00:00'))
+        except Exception:
+            print(f"Ошибка парсинга времени для поста {post_id}")
+            continue
+
+        if scheduled_time > now:
+            continue
+
+        print(f"Публикация поста {post_id}...")
+
+        try:
+            results = post_service.publish_post(
+                uid=post_data.get('uid'),
+                text=post_data.get('text', ''),
+                vk_groups=post_data.get('vk_groups', []),
+                tg_channels=post_data.get('tg_channels', []),
+                attachments=post_data.get('attachments') or None,
+            )
+
+            if results['success']:
+                post_service.update_scheduled_post_status(post_id, 'published')
+                print(f"Пост {post_id} успешно опубликован")
+            else:
+                error_msg = ', '.join(results.get('errors', []))
+                post_service.update_scheduled_post_status(post_id, 'failed', error_msg)
+                print(f"Ошибка публикации поста {post_id}: {error_msg}")
+
+        except Exception as e:
+            print(f"Исключение при публикации поста {post_id}: {e}")
+            post_service.update_scheduled_post_status(post_id, 'failed', str(e))
+
+        # удаление временных файлов независимо от результата
+        for file_path in (post_data.get('attachments') or []):
+            try:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+            except Exception as e:
+                print(f"Ошибка удаления файла {file_path}: {e}")
 
 
 def main():

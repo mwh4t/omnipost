@@ -345,6 +345,17 @@ class PostService:
             traceback.print_exc()
             return None
 
+    # получение всех запланированных постов всех пользователей
+    def get_all_pending_posts(self) -> list:
+        try:
+            posts = self.firebase.db.collection('scheduled_posts') \
+                .where('status', '==', 'pending') \
+                .stream()
+            return [{'id': p.id, **p.to_dict()} for p in posts]
+        except Exception as e:
+            print(f"Ошибка получения запланированных постов: {e}")
+            return []
+
     # получение запланированных постов пользователя
     def get_scheduled_posts(self, uid: str) -> list:
         try:

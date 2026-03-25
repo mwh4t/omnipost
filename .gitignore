@@ -419,3 +419,6 @@ serviceAccountKey.json
 .firebase/
 
 temp
+
+pytest.ini
+tests
