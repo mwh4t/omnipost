@@ -4,6 +4,37 @@ let selectedTgChannels = [];
 let scheduledTime = null;
 let selectedFiles = [];
 
+// переключение темы
+document.addEventListener('DOMContentLoaded', () => {
+    const themeBtn = document.getElementById('themeToggleBtn');
+    const mainLogo = document.getElementById('mainLogo');
+    
+    // загружаем сохраненную тему
+    const savedTheme = localStorage.getItem('omnipost_theme') || 'dark';
+    document.body.setAttribute('data-theme', savedTheme);
+    updateThemeUI(savedTheme);
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('omnipost_theme', newTheme);
+            updateThemeUI(newTheme);
+        });
+    }
+
+    function updateThemeUI(theme) {
+        if (themeBtn) {
+            themeBtn.querySelector('.theme-icon').textContent = theme === 'dark' ? '◑' : '◐';
+        }
+        if (mainLogo) {
+            mainLogo.src = theme === 'dark' ? '/static/images/logo-white.png' : '/static/images/logo-black.png';
+        }
+    }
+});
+
 function renderFilePreviews() {
     const container = document.getElementById('filePreviewContainer');
     if (!container) return;
@@ -464,10 +495,9 @@ async function publishPost() {
 function updateSchedulePreview() {
     const scheduleDateInput = document.getElementById('scheduleDate');
     const scheduleTimeInput = document.getElementById('scheduleTime');
-    const schedulePreview = document.getElementById('schedulePreview');
     const publishLaterBtn = document.getElementById('publishLaterBtn');
 
-    if (!scheduleDateInput || !scheduleTimeInput || !schedulePreview || !publishLaterBtn) return;
+    if (!scheduleDateInput || !scheduleTimeInput || !publishLaterBtn) return;
 
     const date = scheduleDateInput.value;
     const time = scheduleTimeInput.value;
@@ -477,26 +507,8 @@ function updateSchedulePreview() {
         const now = new Date();
 
         if (scheduled <= now) {
-            schedulePreview.innerHTML = '<span style="color: #000000;">CHOSEN TIME IS IN THE PAST</span>';
             publishLaterBtn.disabled = true;
         } else {
-            const diff = scheduled - now;
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-            const day = String(scheduled.getDate()).padStart(2, '0');
-            const month = String(scheduled.getMonth() + 1).padStart(2, '0');
-            const year = scheduled.getFullYear();
-            const hour = String(scheduled.getHours()).padStart(2, '0');
-            const minute = String(scheduled.getMinutes()).padStart(2, '0');
-
-            const formattedDateTime = `${day}/${month}/${year} ${hour}:${minute}`;
-
-            schedulePreview.innerHTML = `
-                <strong>POST SCHEDULED FOR:</strong><br>
-                ${formattedDateTime}<br>
-                <span style="color: #888;">(in ${hours}h ${minutes}min)</span>
-            `;
             publishLaterBtn.disabled = false;
         }
     }

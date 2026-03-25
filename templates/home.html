@@ -8,13 +8,20 @@
     <link rel="icon" type="image/png" href="{% static 'images/logo-white.png' %}">
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
 </head>
-<body{% if user %} data-user-logged-in="true"{% endif %}>
+<body{% if user %} data-user-logged-in="true"{% endif %} data-theme="dark">
 <header>
     <div class="header-content">
-        <img src="{% static 'images/logo-white.png' %}" alt="logo" style="width: 80px; height: 80px;">
-        <button class="btn-profile" id="openProfileModal">
-            <img src="{% static 'images/profile-icon.png' %}" alt="Profile" style="width: 40px; height: 40px;">
-        </button>
+        <a href="/" style="text-decoration: none; display: flex; align-items: center; cursor: pointer;">
+            <img src="{% static 'images/logo-white.png' %}" alt="logo" style="width: 80px; height: 80px;" id="mainLogo">
+        </a>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <button class="btn-theme-toggle" id="themeToggleBtn" title="Toggle Theme">
+                <span class="theme-icon">◐</span>
+            </button>
+            <button class="btn-profile" id="openProfileModal">
+                <img src="{% static 'images/profile-icon.png' %}" alt="Profile" style="width: 40px; height: 40px;">
+            </button>
+        </div>
     </div>
 </header>
 
@@ -107,7 +114,6 @@
                 <input type="file" id="fileInput" class="file-input" multiple>
                 <span class="file-name" id="fileName"></span>
 
-                {% if tg_connected %}
                 <div class="formatting-buttons">
                     <button type="button" class="format-btn" title="Bold" onclick="insertFormatting('bold')"><b>B</b></button>
                     <button type="button" class="format-btn" title="Italic" onclick="insertFormatting('italic')"><i>I</i></button>
@@ -115,7 +121,6 @@
                     <button type="button" class="format-btn" title="Strikethrough" onclick="insertFormatting('strike')"><s>S</s></button>
                     <button type="button" class="format-btn" title="Underline" onclick="insertFormatting('underline')"><u>U</u></button>
                 </div>
-                {% endif %}
 
                 <button type="button" class="schedule-btn" id="scheduleBtn" title="Запланировать публикацию">
                     &#128197;
@@ -271,9 +276,6 @@
                 <input type="time" id="scheduleTime" required>
             </div>
 
-            <div class="schedule-info">
-                <p id="schedulePreview"></p>
-            </div>
 
             <div class="schedule-buttons">
                 <button type="button" class="btn-schedule-now" id="publishNowBtn">Publish Now</button>
