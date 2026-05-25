@@ -51,7 +51,7 @@
                 </div>
                 {% endif %}
             </div>
-            <button type="button" class="list-toggle-btn{% if not vk_connected %} disabled{% endif %}" id="toggleVkList" title="CHOOSE GROUPS"{% if not vk_connected %} disabled style="opacity:0.5;cursor:not-allowed;"{% endif %}>☰</button>
+            <button type="button" class="list-toggle-btn{% if not vk_connected %} disabled{% endif %}" id="toggleVkList" title="CHOOSE GROUPS"{% if not user %} style="opacity:0.5;pointer-events:none;"{% elif not vk_connected %} disabled style="opacity:0.5;cursor:not-allowed;"{% endif %}>☰</button>
         </div>
 
         <div class="social-connect-wrapper">
@@ -122,7 +122,7 @@
                     <button type="button" class="format-btn" title="Underline" onclick="insertFormatting('underline')"><u>U</u></button>
                 </div>
 
-                <button type="button" class="schedule-btn" id="scheduleBtn" title="Запланировать публикацию">
+                <button type="button" class="schedule-btn{% if not user %} disabled{% endif %}" id="scheduleBtn" title="Запланировать публикацию"{% if not user %} disabled style="opacity:0.5;pointer-events:none;"{% endif %}>
                     &#128197;
                 </button>
             </div>
@@ -130,7 +130,7 @@
     </div>
 
     <div class="publish-section">
-        <button type="button" class="btn-publish" id="publishBtn">PUBLISH</button>
+        <button type="button" class="btn-publish{% if not user %} disabled{% endif %}" id="publishBtn"{% if not user %} disabled style="opacity:0.5;pointer-events:none;"{% endif %}>PUBLISH</button>
     </div>
 
     <!-- недавние посты -->
@@ -273,7 +273,7 @@
 
             <div class="input-group">
                 <label>Time</label>
-                <input type="time" id="scheduleTime" required>
+                <input type="time" id="scheduleTime" lang="en-GB" required>
             </div>
 
 

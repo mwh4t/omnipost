@@ -64,6 +64,9 @@ class TelegramService:
             }
 
         except Exception as e:
+            # import traceback
+            # print(f"Telegram API _send_code_async Error for {phone}: {repr(e)}")
+            # traceback.print_exc()
             return {'success': False, 'error': str(e)}
 
         finally:
@@ -98,6 +101,9 @@ class TelegramService:
                     phone_code_hash=phone_code_hash
                 )
             except Exception as e:
+                # import traceback
+                # print(f"Telegram API _sign_in_async sign_in Error for {phone}: {repr(e)}")
+                # traceback.print_exc()
                 if 'password' in str(e).lower() or 'two-step' in str(e).lower():
                     if password:
                         user = await client.sign_in(password=password)
@@ -116,6 +122,9 @@ class TelegramService:
             )
 
         except Exception as e:
+            # import traceback
+            # print(f"Telegram API _sign_in_async general Error for {phone}: {repr(e)}")
+            # traceback.print_exc()
             return TGAuthResult(success=False, error=str(e))
 
         finally:

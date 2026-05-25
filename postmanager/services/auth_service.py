@@ -18,12 +18,12 @@ class AuthResult:
 class AuthService:
     # маппинг ошибок firebase
     ERROR_MESSAGES = {
-        'EMAIL_EXISTS': 'email уже зарегистрирован',
-        'EMAIL_NOT_FOUND': 'пользователь не найден',
-        'INVALID_PASSWORD': 'неверный пароль',
-        'INVALID_LOGIN_CREDENTIALS': 'неверный email или пароль',
-        'WEAK_PASSWORD': 'пароль слишком простой (мин. 6 символов)',
-        'INVALID_EMAIL': 'неверный формат email',
+        'EMAIL_EXISTS': 'EMAIL ALREADY REGISTERED',
+        'EMAIL_NOT_FOUND': 'USER NOT FOUND',
+        'INVALID_PASSWORD': 'INVALID PASSWORD',
+        'INVALID_LOGIN_CREDENTIALS': 'INVALID EMAIL OR PASSWORD',
+        'WEAK_PASSWORD': 'PASSWORD TOO WEAK (MIN. 6 CHARACTERS)',
+        'INVALID_EMAIL': 'INVALID EMAIL FORMAT',
     }
 
     def __init__(self):
