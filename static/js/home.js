@@ -8,7 +8,7 @@ let selectedFiles = [];
 document.addEventListener('DOMContentLoaded', () => {
     const themeBtn = document.getElementById('themeToggleBtn');
     const mainLogo = document.getElementById('mainLogo');
-    
+
     // загружаем сохраненную тему
     const savedTheme = localStorage.getItem('omnipost_theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         themeBtn.addEventListener('click', () => {
             const currentTheme = document.body.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
+
             document.body.setAttribute('data-theme', newTheme);
             localStorage.setItem('omnipost_theme', newTheme);
             updateThemeUI(newTheme);
@@ -58,7 +58,10 @@ function renderFilePreviews() {
         const removeBtn = document.createElement('button');
         removeBtn.className = 'file-preview-remove';
         removeBtn.innerHTML = '✕';
-        removeBtn.onclick = () => { selectedFiles.splice(index, 1); renderFilePreviews(); };
+        removeBtn.onclick = () => {
+            selectedFiles.splice(index, 1);
+            renderFilePreviews();
+        };
         item.appendChild(removeBtn);
         container.appendChild(item);
     });
@@ -143,8 +146,18 @@ function renderRecentPosts(posts) {
         }
 
         const time = post.scheduled_time ?
-            new Date(post.scheduled_time).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) :
-            new Date(post.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            new Date(post.scheduled_time).toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }) :
+            new Date(post.created_at).toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
 
         return `
             <div class="recent-post ${statusClass}">
@@ -309,12 +322,12 @@ function toggleTooltip(tooltipId) {
 }
 
 // форматирование текста
-window.insertFormatting = function(type) {
+window.insertFormatting = function (type) {
     const textarea = document.getElementById('postText');
     if (!textarea) return;
 
     let startTag = '', endTag = '';
-    switch(type) {
+    switch (type) {
         case 'bold':
             startTag = '<b>';
             endTag = '</b>';
@@ -359,7 +372,7 @@ async function deleteVkGroup(groupId) {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCookie('csrftoken')
             },
-            body: JSON.stringify({ group_id: groupId })
+            body: JSON.stringify({group_id: groupId})
         });
 
         const data = await response.json();
@@ -386,7 +399,7 @@ async function deleteTgChannel(channelId) {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCookie('csrftoken')
             },
-            body: JSON.stringify({ channel_id: channelId })
+            body: JSON.stringify({channel_id: channelId})
         });
 
         const data = await response.json();
@@ -515,7 +528,7 @@ function updateSchedulePreview() {
 }
 
 // инициализация
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('DOM loaded, initializing...');
 
     const scheduleBtn = document.getElementById('scheduleBtn');
@@ -543,6 +556,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const tgAddBtn = document.querySelector('#tgConnectBtn .social-add-btn');
     const tgSendCodeBtn = document.getElementById('tgSendCodeBtn');
     const tgVerifyCodeBtn = document.getElementById('tgVerifyCodeBtn');
+    const tgQrBtn = document.getElementById('tgQrBtn');
+    const tgBackToPhoneBtn = document.getElementById('tgBackToPhoneBtn');
+    const tgBackToPhoneBtn2 = document.getElementById('tgBackToPhoneBtn2');
+    const tgVerifyQr2faBtn = document.getElementById('tgVerifyQr2faBtn');
+
+    function showTgError(msg) {
+        const errEl = document.getElementById('tg-error-message');
+        if (!errEl) return;
+        if (msg) {
+            errEl.textContent = msg;
+            errEl.style.display = 'block';
+        } else {
+            errEl.style.display = 'none';
+        }
+    }
 
     // установка минимальной даты
     if (scheduleDateInput) {
@@ -552,7 +580,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // планирование
     if (scheduleBtn && scheduleModal) {
-        scheduleBtn.addEventListener('click', function() {
+        scheduleBtn.addEventListener('click', function () {
             scheduleModal.style.display = 'block';
             setTimeout(() => {
                 scheduleModal.classList.add('active');
@@ -585,7 +613,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (publishNowBtn && scheduleModal) {
-        publishNowBtn.addEventListener('click', function() {
+        publishNowBtn.addEventListener('click', function () {
             scheduledTime = null;
             closeModal(scheduleModal);
             publishPost();
@@ -593,7 +621,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (publishLaterBtn && scheduleModal) {
-        publishLaterBtn.addEventListener('click', function() {
+        publishLaterBtn.addEventListener('click', function () {
             if (!scheduleDateInput || !scheduleTimeInput) return;
 
             const date = scheduleDateInput.value;
@@ -620,7 +648,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // кнопки toggle
     if (toggleVkBtn) {
-        toggleVkBtn.addEventListener('click', function(e) {
+        toggleVkBtn.addEventListener('click', function (e) {
             if (this.disabled || this.classList.contains('disabled')) {
                 e.preventDefault();
                 return;
@@ -630,7 +658,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (toggleTgBtn) {
-        toggleTgBtn.addEventListener('click', function(e) {
+        toggleTgBtn.addEventListener('click', function (e) {
             if (this.disabled || this.classList.contains('disabled')) {
                 e.preventDefault();
                 return;
@@ -651,7 +679,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // добавление vk группы
     if (vkAddBtn && vkGroupIdInput && vkGroupTokenInput) {
-        vkAddBtn.addEventListener('click', async function() {
+        vkAddBtn.addEventListener('click', async function () {
             const groupId = vkGroupIdInput.value.trim();
             const groupToken = vkGroupTokenInput.value.trim();
 
@@ -691,7 +719,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // добавление tg канала
     if (tgAddBtn && tgInput) {
-        tgAddBtn.addEventListener('click', async function() {
+        tgAddBtn.addEventListener('click', async function () {
             const channelId = tgInput.value.trim();
 
             if (!channelId) {
@@ -729,7 +757,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // публикация
     if (publishBtn) {
-        publishBtn.addEventListener('click', function() {
+        publishBtn.addEventListener('click', function () {
             if (scheduleModal) {
                 scheduleModal.style.display = 'block';
                 setTimeout(() => {
@@ -742,7 +770,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // окно профиля
     if (openProfileBtn && profileModal) {
-        openProfileBtn.addEventListener('click', function() {
+        openProfileBtn.addEventListener('click', function () {
             profileModal.style.display = 'block';
             setTimeout(() => {
                 profileModal.classList.add('active');
@@ -756,7 +784,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // окно tg
     if (openTgModalBtn && tgModal) {
-        openTgModalBtn.addEventListener('click', function() {
+        openTgModalBtn.addEventListener('click', function () {
             tgModal.style.display = 'block';
             setTimeout(() => {
                 tgModal.classList.add('active');
@@ -770,7 +798,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // tg авторизация
     if (tgSendCodeBtn) {
-        tgSendCodeBtn.addEventListener('click', async function() {
+        tgSendCodeBtn.addEventListener('click', async function () {
             const tgErrorMessage = document.getElementById('tg-error-message');
             const tgPhone = document.getElementById('tgPhone');
 
@@ -797,7 +825,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         'Content-Type': 'application/json',
                         'X-CSRFToken': getCookie('csrftoken')
                     },
-                    body: JSON.stringify({ phone: phone })
+                    body: JSON.stringify({phone: phone})
                 });
 
                 const data = await response.json();
@@ -805,9 +833,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     const tgStep1 = document.getElementById('tgStep1');
                     const tgStep2 = document.getElementById('tgStep2');
-                    
+
                     const tgSubtitle = document.getElementById('tgSubtitle');
-                    if(tgSubtitle) {
+                    if (tgSubtitle) {
                         tgSubtitle.textContent = `We've sent a code to ${phone}. Please enter it below.`;
                     }
 
@@ -832,7 +860,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (tgVerifyCodeBtn) {
-        tgVerifyCodeBtn.addEventListener('click', async function() {
+        tgVerifyCodeBtn.addEventListener('click', async function () {
             const tgErrorMessage = document.getElementById('tg-error-message');
             const tgCode = document.getElementById('tgCode');
             const tg2faPassword = document.getElementById('tg2faPassword');
@@ -862,7 +890,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         'Content-Type': 'application/json',
                         'X-CSRFToken': getCookie('csrftoken')
                     },
-                    body: JSON.stringify({ code: code, password: password })
+                    body: JSON.stringify({code: code, password: password})
                 });
 
                 const data = await response.json();
@@ -872,9 +900,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (data.error === '2fa_required') {
                     const tg2faGroup = document.getElementById('tg2faGroup');
                     if (tg2faGroup) tg2faGroup.style.display = 'block';
-                    
+
                     const tgSubtitle = document.getElementById('tgSubtitle');
-                    if(tgSubtitle) {
+                    if (tgSubtitle) {
                         tgSubtitle.textContent = `This account requires a Two-Step Verification password.`;
                     }
 
@@ -902,6 +930,131 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // qr-авторизация тг
+    if (tgQrBtn) {
+        tgQrBtn.addEventListener('click', async () => {
+            showTgError('');
+            const tgQrBtnOrigText = tgQrBtn.innerHTML;
+            tgQrBtn.innerHTML = '⌛';
+            tgQrBtn.style.pointerEvents = 'none';
+
+            try {
+                const response = await fetch('/api/tg/qr_start/');
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('tgStep1').style.display = 'none';
+                    document.getElementById('tgStepQR').style.display = 'block';
+                    document.getElementById('tgStepQR2FA').style.display = 'none';
+                    document.getElementById('tgSubtitle').textContent = 'Open Telegram -> Settings -> Devices -> Link Desktop Device';
+
+                    document.getElementById('qrCodeImage').src = result.qr_image;
+                    currentQrToken = result.token;
+
+                    // start polling
+                    qrPollInterval = setInterval(pollQrStatus, 3000);
+                } else {
+                    showTgError(result.error || 'Failed to generate QR code');
+                }
+            } catch (e) {
+                showTgError('Connection error');
+            } finally {
+                if (tgQrBtn) {
+                    tgQrBtn.innerHTML = tgQrBtnOrigText;
+                    tgQrBtn.style.pointerEvents = 'auto';
+                }
+            }
+        });
+    }
+
+    if (tgBackToPhoneBtn) {
+        tgBackToPhoneBtn.addEventListener('click', () => {
+            if (qrPollInterval) clearInterval(qrPollInterval);
+            currentQrToken = null;
+
+            document.getElementById('tgStepQR').style.display = 'none';
+            document.getElementById('tgStepQR2FA').style.display = 'none';
+            document.getElementById('tgStep1').style.display = 'block';
+            document.getElementById('tgSubtitle').textContent = 'Please enter your phone number in the international format.';
+            showTgError('');
+        });
+    }
+
+    if (tgBackToPhoneBtn2) {
+        tgBackToPhoneBtn2.addEventListener('click', () => {
+            if (qrPollInterval) clearInterval(qrPollInterval);
+            currentQrToken = null;
+
+            document.getElementById('tgStepQR').style.display = 'none';
+            document.getElementById('tgStepQR2FA').style.display = 'none';
+            document.getElementById('tgStep1').style.display = 'block';
+            document.getElementById('tgSubtitle').textContent = 'Please enter your phone number in the international format.';
+            showTgError('');
+        });
+    }
+
+    if (tgVerifyQr2faBtn) {
+        tgVerifyQr2faBtn.addEventListener('click', async () => {
+            const password = document.getElementById('tgQr2faPassword').value;
+            tgVerifyQr2faBtn.disabled = true;
+            tgVerifyQr2faBtn.textContent = 'PLEASE WAIT...';
+
+            try {
+                const response = await fetch('/api/tg/qr_verify_2fa/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({token: currentQrToken, password: password})
+                });
+                const data = await response.json();
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    showTgError(data.error || 'Password verification failed');
+                }
+            } catch (e) {
+                showTgError('Connection error');
+            } finally {
+                tgVerifyQr2faBtn.disabled = false;
+                tgVerifyQr2faBtn.textContent = 'VERIFY PASSWORD';
+            }
+        });
+    }
+
+    async function pollQrStatus() {
+        if (!currentQrToken) return;
+
+        try {
+            const response = await fetch(`/api/tg/qr_check/?token=${currentQrToken}`);
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                clearInterval(qrPollInterval);
+                document.getElementById('qrStatusText').textContent = 'Success! Redirecting...';
+                document.getElementById('qrStatusText').style.color = '#4CAF50';
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else if (result.status === '2fa_required') {
+                clearInterval(qrPollInterval);
+                document.getElementById('tgStepQR').style.display = 'none';
+                document.getElementById('tgStepQR2FA').style.display = 'block';
+                document.getElementById('tgSubtitle').textContent = 'This account requires a Two-Step Verification password.';
+                showTgError('');
+            } else if (result.status === 'error') {
+                clearInterval(qrPollInterval);
+                showTgError(result.error || 'QR login failed');
+                setTimeout(() => {
+                    if (tgBackToPhoneBtn) tgBackToPhoneBtn.click();
+                }, 2000);
+            }
+        } catch (e) {
+            // keep polling
+        }
+    }
+
     // загрузка данных
     const isUserLoggedIn = document.body.dataset.userLoggedIn === 'true';
     if (isUserLoggedIn) {
@@ -912,7 +1065,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // хоткеи для форматирования текста
     const postTextArea = document.getElementById('postText');
     if (postTextArea) {
-        postTextArea.addEventListener('keydown', function(e) {
+        postTextArea.addEventListener('keydown', function (e) {
             if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey) {
                 let type = null;
                 switch (e.key.toLowerCase()) {
@@ -947,7 +1100,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // глобальные обработчики
 
 // закрытие dropdown при клике вне
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     if (!e.target.closest('.dropdown-panel') &&
         !e.target.closest('.list-toggle-btn')) {
         closeAllDropdowns();
@@ -963,7 +1116,7 @@ document.addEventListener('click', function(e) {
 });
 
 // закрытие модальных окон при клике вне
-window.addEventListener('click', function(event) {
+window.addEventListener('click', function (event) {
     const profileModal = document.getElementById('profileModal');
     const tgModal = document.getElementById('tgModal');
     const scheduleModal = document.getElementById('scheduleModal');

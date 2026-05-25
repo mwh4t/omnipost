@@ -16,9 +16,12 @@ urlpatterns = [
     path('api/vk-disconnect/', views.vk_disconnect, name='vk_disconnect'),
 
     # tg авторизация
-    path('api/tg-send-code/', views.tg_send_code, name='tg_send_code'),
-    path('api/tg-verify-code/', views.tg_verify_code, name='tg_verify_code'),
-    path('api/tg-disconnect/', views.tg_disconnect, name='tg_disconnect'),
+    path('api/tg/send-code/', views.tg_send_code, name='tg_send_code'),
+    path('api/tg/verify-code/', views.tg_verify_code, name='tg_verify_code'),
+    path('api/tg/qr_start/', views.tg_qr_start, name='tg_qr_start'),
+    path('api/tg/qr_check/', views.tg_qr_check, name='tg_qr_check'),
+    path('api/tg/qr_verify_2fa/', views.tg_qr_verify_2fa, name='tg_qr_verify_2fa'),
+    path('api/tg/disconnect/', views.tg_disconnect, name='tg_disconnect'),
 
     # публикация постов
     path('api/publish-post/', views.publish_post, name='publish_post'),

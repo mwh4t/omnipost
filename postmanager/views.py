@@ -300,6 +300,82 @@ def tg_verify_code(request):
     return JsonResponse({'success': True, 'message': 'telegram подключен'})
 
 
+def tg_qr_start(request):
+    user = request.session.get('user')
+    if not user:
+        return JsonResponse({'success': False, 'error': 'требуется авторизация'})
+
+    tg_service = TelegramService()
+    result = tg_service.get_qr_login()
+    return JsonResponse(result)
+
+
+def tg_qr_check(request):
+    user = request.session.get('user')
+    if not user:
+        return JsonResponse({'status': 'error', 'error': 'требуется авторизация'})
+
+    token = request.GET.get('token')
+    if not token:
+        return JsonResponse({'status': 'error', 'error': 'token is missing'})
+
+    tg_service = TelegramService()
+    result = tg_service.check_qr_login(token)
+
+    if result.get('status') == 'success':
+        user_info = tg_service.get_me(result['session_string'])
+        admin_channels = tg_service.get_admin_channels(result['session_string'])
+
+        tg_service.save_account(user['uid'], {
+            'session_string': result['session_string'],
+            'user_id': result['user_id'],
+            'phone': user_info.get('phone', '') if user_info else '',
+            'user_info': user_info or {},
+            'channels': admin_channels,
+        })
+        return JsonResponse({'status': 'success'})
+
+    return JsonResponse(result)
+
+
+def tg_qr_verify_2fa(request):
+    user = request.session.get('user')
+    if not user:
+        return JsonResponse({'success': False, 'error': 'требуется авторизация'})
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'method_not_allowed'})
+
+    import json
+    try:
+        data = json.loads(request.body)
+        token = data.get('token')
+        password = data.get('password')
+    except:
+        token = request.POST.get('token')
+        password = request.POST.get('password')
+
+    if not token or not password:
+        return JsonResponse({'success': False, 'error': 'token and password required'})
+
+    tg_service = TelegramService()
+    result = tg_service.qr_verify_2fa(token, password)
+
+    if result.get('success'):
+        user_info = tg_service.get_me(result['session_string'])
+        admin_channels = tg_service.get_admin_channels(result['session_string'])
+
+        tg_service.save_account(user['uid'], {
+            'session_string': result['session_string'],
+            'user_id': result['user_id'],
+            'phone': user_info.get('phone', '') if user_info else '',
+            'user_info': user_info or {},
+            'channels': admin_channels,
+        })
+
+    return JsonResponse(result)
+
+
 # отключение tg аккаунта
 def tg_disconnect(request):
     user = request.session.get('user')

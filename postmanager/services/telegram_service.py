@@ -6,6 +6,13 @@ from telethon.sessions import StringSession
 from telethon.tl.types import Channel, Chat
 from .firebase_service import FirebaseService
 from .crypto_service import CryptoService
+import uuid
+import threading
+import qrcode
+import base64
+from io import BytesIO
+
+qr_login_sessions = {}
 
 
 @dataclass
@@ -144,6 +151,121 @@ class TelegramService:
             return loop.run_until_complete(
                 self._sign_in_async(phone, code, phone_code_hash, session_string, password)
             )
+        finally:
+            loop.close()
+
+    # авторизация через qr
+    def get_qr_login(self) -> dict:
+        token = str(uuid.uuid4())
+        qr_login_sessions[token] = {'status': 'waiting'}
+
+        def qr_thread():
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+            async def workflow():
+                client = self._create_client()
+                await client.connect()
+                try:
+                    qr = await client.qr_login()
+                    qr_login_sessions[token]['qr_url'] = qr.url
+                    user = await qr.wait(120)
+                    qr_login_sessions[token]['status'] = 'success'
+                    qr_login_sessions[token]['session_string'] = client.session.save()
+                    qr_login_sessions[token]['user_id'] = user.id
+                except Exception as e:
+                    if 'password' in str(e).lower() or 'two-step' in str(e).lower():
+                        qr_login_sessions[token]['status'] = '2fa_required'
+                        qr_login_sessions[token]['session_string'] = client.session.save()
+                    else:
+                        qr_login_sessions[token]['status'] = 'error'
+                        qr_login_sessions[token]['error'] = str(e)
+                finally:
+                    await client.disconnect()
+
+            try:
+                loop.run_until_complete(workflow())
+            finally:
+                loop.close()
+
+        t = threading.Thread(target=qr_thread)
+        t.start()
+
+        import time
+        for _ in range(50):
+            if 'qr_url' in qr_login_sessions[token] or qr_login_sessions[token]['status'] == 'error':
+                break
+            time.sleep(0.1)
+
+        if 'qr_url' not in qr_login_sessions[token]:
+            return {'success': False, 'error': 'Failed to generate QR code'}
+
+        if qr_login_sessions[token]['status'] == 'error':
+            return {'success': False, 'error': qr_login_sessions[token].get('error', 'Unknown error')}
+
+        # генерация qr
+        img = qrcode.make(qr_login_sessions[token]['qr_url'])
+        buffered = BytesIO()
+        img.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode()
+
+        return {
+            'success': True,
+            'token': token,
+            'qr_image': f"data:image/png;base64,{img_str}"
+        }
+
+    def check_qr_login(self, token: str) -> dict:
+        session = qr_login_sessions.get(token)
+        if not session:
+            return {'status': 'error', 'error': 'Сессия не найдена или истекла'}
+
+        if session['status'] == 'success':
+            res = {
+                'status': 'success',
+                'session_string': session['session_string'],
+                'user_id': session['user_id']
+            }
+            del qr_login_sessions[token]
+            return res
+        elif session['status'] == '2fa_required':
+            return {'status': '2fa_required'}
+        elif session['status'] == 'error':
+            error = session['error']
+            del qr_login_sessions[token]
+            return {'status': 'error', 'error': error}
+        else:
+            return {'status': 'waiting'}
+
+    def qr_verify_2fa(self, token: str, password: str) -> dict:
+        session = qr_login_sessions.get(token)
+        if not session or session.get('status') != '2fa_required':
+            return {'success': False, 'error': 'Invalid session or token'}
+
+        session_string = session['session_string']
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        async def verify():
+            client = self._create_client(session_string)
+            await client.connect()
+            try:
+                user = await client.sign_in(password=password)
+                final_session = client.session.save()
+                return {'success': True, 'session_string': final_session, 'user_id': user.id}
+            except Exception as e:
+                return {'success': False, 'error': str(e)}
+            finally:
+                await client.disconnect()
+
+        try:
+            result = loop.run_until_complete(verify())
+            if result['success']:
+                session['status'] = 'success'
+                session['session_string'] = result['session_string']
+                session['user_id'] = result['user_id']
+            return result
         finally:
             loop.close()
 

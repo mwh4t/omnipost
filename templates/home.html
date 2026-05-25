@@ -28,7 +28,8 @@
 <div class="container">
     <div class="social-section">
         <div class="social-connect-wrapper">
-            <div class="social-connect-btn{% if not vk_connected %} disabled{% endif %}" id="vkConnectBtn" {% if not vk_connected %}style="opacity:0.5;pointer-events:none;"{% endif %}>
+            <div class="social-connect-btn{% if not vk_connected %} disabled{% endif %}" id="vkConnectBtn"
+                 {% if not vk_connected %}style="opacity:0.5;pointer-events:none;"{% endif %}>
                 <!-- подсказка vk -->
                 <div class="tooltip-trigger" onclick="toggleTooltip('vkTooltip')">ⓘ</div>
                 <div class="tooltip-content" id="vkTooltip">
@@ -51,11 +52,13 @@
                 </div>
                 {% endif %}
             </div>
-            <button type="button" class="list-toggle-btn{% if not vk_connected %} disabled{% endif %}" id="toggleVkList" title="CHOOSE GROUPS"{% if not user %} style="opacity:0.5;pointer-events:none;"{% elif not vk_connected %} disabled style="opacity:0.5;cursor:not-allowed;"{% endif %}>☰</button>
+            <button type="button" class="list-toggle-btn{% if not vk_connected %} disabled{% endif %}" id="toggleVkList"
+                    title="CHOOSE GROUPS"{% if not user %} style="opacity:0.5;pointer-events:none;"{% elif not vk_connected %} disabled style="opacity:0.5;cursor:not-allowed;"{% endif %}>☰</button>
         </div>
 
         <div class="social-connect-wrapper">
-            <div class="social-connect-btn{% if not tg_connected %} disabled{% endif %}" id="tgConnectBtn"{% if not tg_connected %} style="opacity:0.5;pointer-events:none;"{% endif %}>
+            <div class="social-connect-btn{% if not tg_connected %} disabled{% endif %}" id="tgConnectBtn"
+                    {% if not tg_connected %} style="opacity:0.5;pointer-events:none;"{% endif %}>
                 <!-- подсказка tg -->
                 <div class="tooltip-trigger" onclick="toggleTooltip('tgTooltip')">ⓘ</div>
                 <div class="tooltip-content" id="tgTooltip">
@@ -75,7 +78,8 @@
                     <button type="button" class="social-add-btn">+</button>
                 </div>
             </div>
-            <button type="button" class="list-toggle-btn{% if not tg_connected %} disabled{% endif %}" id="toggleTgList" title="CHOOSE CHANNELS"{% if not tg_connected %} style="opacity:0.5;pointer-events:none;"{% endif %}>☰</button>
+            <button type="button" class="list-toggle-btn{% if not tg_connected %} disabled{% endif %}" id="toggleTgList"
+                    title="CHOOSE CHANNELS"{% if not tg_connected %} style="opacity:0.5;pointer-events:none;"{% endif %}>☰</button>
         </div>
     </div>
 
@@ -122,7 +126,8 @@
                     <button type="button" class="format-btn" title="Underline" onclick="insertFormatting('underline')"><u>U</u></button>
                 </div>
 
-                <button type="button" class="schedule-btn{% if not user %} disabled{% endif %}" id="scheduleBtn" title="Запланировать публикацию"{% if not user %} disabled style="opacity:0.5;pointer-events:none;"{% endif %}>
+                <button type="button" class="schedule-btn{% if not user %} disabled{% endif %}" id="scheduleBtn" title="Запланировать публикацию"
+                        {% if not user %} disabled style="opacity:0.5;pointer-events:none;"{% endif %}>
                     &#128197;
                 </button>
             </div>
@@ -130,7 +135,8 @@
     </div>
 
     <div class="publish-section">
-        <button type="button" class="btn-publish{% if not user %} disabled{% endif %}" id="publishBtn"{% if not user %} disabled style="opacity:0.5;pointer-events:none;"{% endif %}>PUBLISH</button>
+        <button type="button" class="btn-publish{% if not user %} disabled{% endif %}" id="publishBtn"{% if not user %}
+                disabled style="opacity:0.5;pointer-events:none;"{% endif %}>PUBLISH</button>
     </div>
 
     <!-- недавние посты -->
@@ -237,9 +243,14 @@
 
         <!-- ввод номера телефона -->
         <div id="tgStep1" class="tg-step">
-            <div class="tg-input-wrap">
-                <span class="tg-input-label">Phone Number</span>
-                <input type="tel" id="tgPhone" class="tg-input" placeholder="+1 234 567 89 00" required>
+            <div class="tg-phone-qr-flex" style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 20px;">
+                <div class="tg-input-wrap" style="flex: 1; margin-bottom: 0;">
+                    <span class="tg-input-label">Phone Number</span>
+                    <input type="tel" id="tgPhone" class="tg-input" placeholder="+1 234 567 89 00" required>
+                </div>
+                <button type="button" class="tg-btn-qr" id="tgQrBtn" title="QR Code Login" style="width: 50px; height: 50px;
+                border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); background: transparent; color: white; font-size: 24px;
+                cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; flex-shrink: 0;">📱</button>
             </div>
             <button type="button" class="tg-btn-primary" id="tgSendCodeBtn">NEXT</button>
         </div>
@@ -255,6 +266,30 @@
                 <input type="password" id="tg2faPassword" class="tg-input" placeholder="2FA Password">
             </div>
             <button type="button" class="tg-btn-primary" id="tgVerifyCodeBtn">SIGN IN</button>
+        </div>
+
+        <!-- qr code login -->
+        <div id="tgStepQR" class="tg-step" style="display: none; text-align: center;">
+            <p>Scan with your Telegram app</p>
+            <div id="qrCodeContainer" style="margin: 20px auto; width: 220px; height: 220px; background: white; padding: 10px;
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <img id="qrCodeImage" src="" alt="QR Code" style="width: 200px; height: 200px;" />
+            </div>
+            <p id="qrStatusText" style="font-size: 14px; margin-bottom: 15px; color: #a0a0a0;">Waiting for scan...</p>
+            <button type="button" class="tg-btn-secondary" id="tgBackToPhoneBtn" style="width: 100%; padding: 12px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer;">Use Phone Number</button>
+        </div>
+
+        <!-- qr code 2fa password -->
+        <div id="tgStepQR2FA" class="tg-step" style="display: none;">
+            <div class="tg-input-wrap">
+                <span class="tg-input-label">Password</span>
+                <input type="password" id="tgQr2faPassword" class="tg-input" placeholder="2FA Password">
+            </div>
+            <button type="button" class="tg-btn-primary" id="tgVerifyQr2faBtn">VERIFY PASSWORD</button>
+            <button type="button" class="tg-btn-secondary" id="tgBackToPhoneBtn2" style="margin-top: 10px; width: 100%;
+            padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white;
+            cursor: pointer;">Use Phone Number</button>
         </div>
     </div>
 </div>

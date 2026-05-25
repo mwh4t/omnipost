@@ -50,3 +50,5 @@ typing_extensions==4.15.0
 urllib3==2.5.0
 vk_api==11.10.0
 whitenoise==6.8.2
+qrcode
+Pillow
