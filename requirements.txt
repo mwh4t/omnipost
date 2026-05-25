@@ -30,6 +30,7 @@ idna==3.11
 iniconfig==2.3.0
 msgpack==1.1.2
 packaging==26.0
+pillow==12.2.0
 pluggy==1.6.0
 proto-plus==1.26.1
 protobuf==6.33.1
@@ -39,9 +40,10 @@ pyasn1_modules==0.4.2
 pycparser==2.23
 Pygments==2.19.2
 PyJWT==2.10.1
-PySocks==1.7.1
 pytest==9.0.2
 python-decouple==3.8
+python-socks==2.8.1
+qrcode==8.2
 requests==2.32.5
 rsa==4.9.1
 sqlparse==0.5.3
@@ -50,5 +52,3 @@ typing_extensions==4.15.0
 urllib3==2.5.0
 vk_api==11.10.0
 whitenoise==6.8.2
-qrcode
-Pillow

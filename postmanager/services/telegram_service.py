@@ -34,19 +34,17 @@ class TelegramService:
 
     # создание нового клиента
     def _create_client(self, session_string: str = '') -> TelegramClient:
-        import socks
-
         proxy = None
         proxy_host = config('TG_PROXY_HOST', default='')
         if proxy_host:
-            proxy = (
-                socks.SOCKS5,
-                proxy_host,
-                int(config('TG_PROXY_PORT', default='1080')),
-                True,
-                config('TG_PROXY_USER', default=None),
-                config('TG_PROXY_PASS', default=None),
-            )
+            proxy = {
+                'proxy_type': 'http',
+                'addr': proxy_host,
+                'port': int(config('TG_PROXY_PORT', default='1080')),
+                'rdns': True,
+                'username': config('TG_PROXY_USER', default=None) or None,
+                'password': config('TG_PROXY_PASS', default=None) or None,
+            }
 
         return TelegramClient(
             StringSession(session_string),
