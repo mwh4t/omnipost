@@ -683,8 +683,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const groupId = vkGroupIdInput.value.trim();
             const groupToken = vkGroupTokenInput.value.trim();
 
-            if (!groupId || !groupToken) {
+            if (!groupId) {
                 alert('Enter group ID and access token');
+                return;
+            }
+
+            if (!groupToken) {
+                window.open(`https://vk.com/club${groupId}?act=tokens`, '_blank');
                 return;
             }
 

@@ -596,9 +596,8 @@ header {
 .social-hlogo {
     height: 50px;
     width: auto;
-    transition: opacity 100ms ease;
     cursor: pointer;
-    position: relative;
+    transition: opacity 200ms ease;
 }
 
 .social-hlogo::before {
@@ -612,23 +611,25 @@ header {
     z-index: 1;
 }
 
-.social-hlogo:hover {
-    opacity: 0.3;
-}
-
 .social-input-wrapper {
     display: flex;
     align-items: center;
     opacity: 0;
     position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
     pointer-events: none;
-    transition: opacity 100ms ease;
+    transition: opacity 200ms ease;
 }
 
-.social-connect-btn:has(.social-hlogo:hover) .social-input-wrapper,
-.social-input-wrapper:hover {
+.social-connect-btn:hover .social-hlogo {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.social-connect-btn:hover .social-input-wrapper {
     opacity: 1;
-    position: relative;
     pointer-events: auto;
 }
 
@@ -659,7 +660,7 @@ header {
 }
 
 .social-add-btn {
-    padding: 8px 10px;
+    padding: 8px 15px;
     border: 1px solid var(--border-color);
     border-left: none;
     background: var(--bg-main);
@@ -1953,6 +1954,21 @@ textarea::placeholder {
 
     .modal.active .modal-content {
         transform: translate(-50%, -50%) scale(1) !important;
+    }
+
+    .social-input-wrapper {
+        position: relative !important;
+        left: unset !important;
+        top: unset !important;
+        transform: none !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    .social-connect-btn:hover .social-hlogo,
+    .social-hlogo {
+        opacity: 1 !important;
+        pointer-events: auto !important;
     }
 }
 
