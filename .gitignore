@@ -417,6 +417,3 @@ serviceAccountKey.json
 ### Firebase Patch ###
 .runtimeconfig.json
 .firebase/
-
-pytest.ini
-tests
