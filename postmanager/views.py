@@ -143,7 +143,7 @@ def vk_login(request):
 # обработка callback от vk oauth
 def vk_callback(request):
     user = request.session.get('user')
-    
+
     if not user:
         return redirect('/?error=требуется_авторизация')
 
@@ -281,7 +281,6 @@ def tg_verify_code(request):
     # получение информации о пользователе tg
     user_info = tg_service.get_me(result.session_string)
 
-
     # получение каналов
     admin_channels = tg_service.get_admin_channels(result.session_string)
 
@@ -386,6 +385,7 @@ def tg_disconnect(request):
     tg_service.disconnect_account(user['uid'])
 
     return redirect('home')
+
 
 # публикация поста
 def publish_post(request):

@@ -45,15 +45,18 @@
 
                 <img src="{% static 'images/vk-hlogo.png' %}" alt="VK" class="social-hlogo">
                 {% if vk_connected %}
-                <div class="social-input-wrapper">
-                    <input type="text" class="social-input social-group-id" placeholder="GROUP ID...">
-                    <input type="text" class="social-input social-group-token" placeholder="ACCESS TOKEN...">
-                    <button type="button" class="social-add-btn">+</button>
-                </div>
+                    <div class="social-input-wrapper">
+                        <input type="text" class="social-input social-group-id" placeholder="GROUP ID...">
+                        <input type="text" class="social-input social-group-token" placeholder="ACCESS TOKEN...">
+                        <button type="button" class="social-add-btn">+</button>
+                    </div>
                 {% endif %}
             </div>
             <button type="button" class="list-toggle-btn{% if not vk_connected %} disabled{% endif %}" id="toggleVkList"
-                    title="CHOOSE GROUPS"{% if not user %} style="opacity:0.5;pointer-events:none;"{% elif not vk_connected %} disabled style="opacity:0.5;cursor:not-allowed;"{% endif %}>☰</button>
+                    title="CHOOSE GROUPS"{% if not user %}
+                    style="opacity:0.5;pointer-events:none;"{% elif not vk_connected %} disabled
+                    style="opacity:0.5;pointer-events:none;"{% endif %}>☰
+            </button>
         </div>
 
         <div class="social-connect-wrapper">
@@ -79,7 +82,9 @@
                 </div>
             </div>
             <button type="button" class="list-toggle-btn{% if not tg_connected %} disabled{% endif %}" id="toggleTgList"
-                    title="CHOOSE CHANNELS"{% if not tg_connected %} style="opacity:0.5;pointer-events:none;"{% endif %}>☰</button>
+                    title="CHOOSE CHANNELS"{% if not tg_connected %}
+                    style="opacity:0.5;pointer-events:none;"{% endif %}>☰
+            </button>
         </div>
     </div>
 
@@ -119,14 +124,20 @@
                 <span class="file-name" id="fileName"></span>
 
                 <div class="formatting-buttons">
-                    <button type="button" class="format-btn" title="Bold" onclick="insertFormatting('bold')"><b>B</b></button>
-                    <button type="button" class="format-btn" title="Italic" onclick="insertFormatting('italic')"><i>I</i></button>
-                    <button type="button" class="format-btn" title="Monospace" onclick="insertFormatting('mono')"><code>Mono</code></button>
-                    <button type="button" class="format-btn" title="Strikethrough" onclick="insertFormatting('strike')"><s>S</s></button>
-                    <button type="button" class="format-btn" title="Underline" onclick="insertFormatting('underline')"><u>U</u></button>
+                    <button type="button" class="format-btn" title="Bold" onclick="insertFormatting('bold')"><b>B</b>
+                    </button>
+                    <button type="button" class="format-btn" title="Italic" onclick="insertFormatting('italic')">
+                        <i>I</i></button>
+                    <button type="button" class="format-btn" title="Monospace" onclick="insertFormatting('mono')"><code>Mono</code>
+                    </button>
+                    <button type="button" class="format-btn" title="Strikethrough" onclick="insertFormatting('strike')">
+                        <s>S</s></button>
+                    <button type="button" class="format-btn" title="Underline" onclick="insertFormatting('underline')">
+                        <u>U</u></button>
                 </div>
 
-                <button type="button" class="schedule-btn{% if not user %} disabled{% endif %}" id="scheduleBtn" title="Запланировать публикацию"
+                <button type="button" class="schedule-btn{% if not user %} disabled{% endif %}" id="scheduleBtn"
+                        title="Запланировать публикацию"
                         {% if not user %} disabled style="opacity:0.5;pointer-events:none;"{% endif %}>
                     &#128197;
                 </button>
@@ -136,7 +147,8 @@
 
     <div class="publish-section">
         <button type="button" class="btn-publish{% if not user %} disabled{% endif %}" id="publishBtn"{% if not user %}
-                disabled style="opacity:0.5;pointer-events:none;"{% endif %}>PUBLISH</button>
+                disabled style="opacity:0.5;pointer-events:none;"{% endif %}>PUBLISH
+        </button>
     </div>
 
     <!-- недавние посты -->
@@ -154,77 +166,82 @@
         <span class="close-modal" id="closeProfileModal">&times;</span>
 
         {% if user %}
-        <!-- авторизован -->
-        <div class="profile-info">
-            <div class="profile-email">{{ user.email }}</div>
+            <!-- авторизован -->
+            <div class="profile-info">
+                <div class="profile-email">{{ user.email }}</div>
 
-            <div class="profile-socials">
-                {% if vk_connected %}
-                <a href="{% url 'vk_disconnect' %}" class="social-login-btn vk connected" title="DISABLE VK">
-                    <img src="{% static 'images/vkon-icon.png' %}" alt="VK" class="icon-default">
-                    <img src="{% static 'images/vkoff-icon.png' %}" alt="VK" class="icon-hover">
-                </a>
-                {% else %}
-                <a href="{% url 'vk_login' %}" class="social-login-btn vk" title="CONNECT VK">
-                    <img src="{% static 'images/vk-icon.png' %}" alt="VK">
-                </a>
-                {% endif %}
+                <div class="profile-socials">
+                    {% if vk_connected %}
+                        <a href="{% url 'vk_disconnect' %}" class="social-login-btn vk connected" title="DISABLE VK">
+                            <img src="{% static 'images/vkon-icon.png' %}" alt="VK" class="icon-default">
+                            <img src="{% static 'images/vkoff-icon.png' %}" alt="VK" class="icon-hover">
+                        </a>
+                    {% else %}
+                        <a href="{% url 'vk_login' %}" class="social-login-btn vk" title="CONNECT VK">
+                            <img src="{% static 'images/vk-icon.png' %}" alt="VK">
+                        </a>
+                    {% endif %}
 
-                {% if tg_connected %}
-                <a href="{% url 'tg_disconnect' %}" class="social-login-btn tg connected" title="DISABLE TG">
-                    <img src="{% static 'images/tgon-icon.png' %}" alt="Telegram" class="icon-default">
-                    <img src="{% static 'images/tgoff-icon.png' %}" alt="Telegram" class="icon-hover">
-                </a>
-                {% else %}
-                <button type="button" class="social-login-btn tg" id="openTgModal" title="CONNECT TG" style="cursor: pointer;">
-                    <img src="{% static 'images/tg-icon.png' %}" alt="Telegram">
-                </button>
-                {% endif %}
+                    {% if tg_connected %}
+                        <a href="{% url 'tg_disconnect' %}" class="social-login-btn tg connected" title="DISABLE TG">
+                            <img src="{% static 'images/tgon-icon.png' %}" alt="Telegram" class="icon-default">
+                            <img src="{% static 'images/tgoff-icon.png' %}" alt="Telegram" class="icon-hover">
+                        </a>
+                    {% else %}
+                        <button type="button" class="social-login-btn tg" id="openTgModal" title="CONNECT TG"
+                                style="cursor: pointer;">
+                            <img src="{% static 'images/tg-icon.png' %}" alt="Telegram">
+                        </button>
+                    {% endif %}
+                </div>
+
+                <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
             </div>
-
-            <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
-        </div>
         {% else %}
-        <!-- не авторизован -->
-        <div id="error-message" class="error-message" style="display: none;"></div>
+            <!-- не авторизован -->
+            <div id="error-message" class="error-message" style="display: none;"></div>
 
-        <form id="authForm" method="POST" action="{% url 'email_auth' %}">
-            {% csrf_token %}
-            <input type="hidden" name="action" id="authAction" value="login">
+            <form id="authForm" method="POST" action="{% url 'email_auth' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" id="authAction" value="login">
 
-            <div class="input-group">
-                <label>Email</label>
-                <input type="email" name="email" id="email" required>
-            </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" name="email" id="email" required>
+                </div>
 
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" name="password" id="password" required>
-            </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="password" id="password" required>
+                </div>
 
-            <div class="auth-buttons">
-                <button type="submit" class="btn-login" onclick="document.getElementById('authAction').value='login'">Login</button>
-                <button type="submit" class="btn-register" onclick="document.getElementById('authAction').value='register'">Register</button>
-            </div>
-        </form>
+                <div class="auth-buttons">
+                    <button type="submit" class="btn-login"
+                            onclick="document.getElementById('authAction').value='login'">Login
+                    </button>
+                    <button type="submit" class="btn-register"
+                            onclick="document.getElementById('authAction').value='register'">Register
+                    </button>
+                </div>
+            </form>
 
-        <div class="divider">or</div>
+            <div class="divider">or</div>
 
-        <a href="{% url 'google_login' %}" class="btn-google">
-            <img src="{% static 'images/google-icon.png' %}" alt="Google" style="width: 20px; height: 20px;">
-            LOGIN WITH GOOGLE
-        </a>
+            <a href="{% url 'google_login' %}" class="btn-google">
+                <img src="{% static 'images/google-icon.png' %}" alt="Google" style="width: 20px; height: 20px;">
+                LOGIN WITH GOOGLE
+            </a>
         {% endif %}
     </div>
 </div>
 
 {% if error %}
-<script>
-    document.getElementById('error-message').textContent = "{{ error }}";
-    document.getElementById('error-message').style.display = 'block';
-    document.getElementById('profileModal').style.display = 'block';
-    document.getElementById('profileModal').classList.add('active');
-</script>
+    <script>
+        document.getElementById('error-message').textContent = "{{ error }}";
+        document.getElementById('error-message').style.display = 'block';
+        document.getElementById('profileModal').style.display = 'block';
+        document.getElementById('profileModal').classList.add('active');
+    </script>
 {% endif %}
 
 <!-- модальное окно tg авторизации -->
@@ -243,14 +260,16 @@
 
         <!-- ввод номера телефона -->
         <div id="tgStep1" class="tg-step">
-            <div class="tg-phone-qr-flex" style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 20px;">
+            <div class="tg-phone-qr-flex" style="display: flex; gap: 10px; align-items: flex-end;">
                 <div class="tg-input-wrap" style="flex: 1; margin-bottom: 0;">
                     <span class="tg-input-label">Phone Number</span>
                     <input type="tel" id="tgPhone" class="tg-input" placeholder="+1 234 567 89 00" required>
                 </div>
                 <button type="button" class="tg-btn-qr" id="tgQrBtn" title="QR Code Login" style="width: 50px; height: 50px;
                 border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); background: transparent; color: white; font-size: 24px;
-                cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; flex-shrink: 0;">📱</button>
+                cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; flex-shrink: 0;">
+                    📱
+                </button>
             </div>
             <button type="button" class="tg-btn-primary" id="tgSendCodeBtn">NEXT</button>
         </div>
@@ -271,13 +290,15 @@
         <!-- qr code login -->
         <div id="tgStepQR" class="tg-step" style="display: none; text-align: center;">
             <p>Scan with your Telegram app</p>
-            <div id="qrCodeContainer" style="margin: 20px auto; width: 220px; height: 220px; background: white; padding: 10px;
-            border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                <img id="qrCodeImage" src="" alt="QR Code" style="width: 200px; height: 200px;" />
+            <div id="qrCodeContainer" style="margin: 20px auto; max-width: 100%; width: 220px; aspect-ratio: 1/1; background: white; padding: 10px;
+            border-radius: 10px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+                <img id="qrCodeImage" src="" alt="QR Code" style="max-width: 100%; max-height: 100%; display: block;"/>
             </div>
             <p id="qrStatusText" style="font-size: 14px; margin-bottom: 15px; color: #a0a0a0;">Waiting for scan...</p>
-            <button type="button" class="tg-btn-secondary" id="tgBackToPhoneBtn" style="width: 100%; padding: 12px; border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer;">Use Phone Number</button>
+            <button type="button" class="tg-btn-secondary" id="tgBackToPhoneBtn" style="width: 100%; padding: 12px; border-radius: 8px; font-size: 14px;
+            border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer;">Use Phone
+                Number
+            </button>
         </div>
 
         <!-- qr code 2fa password -->
@@ -289,7 +310,8 @@
             <button type="button" class="tg-btn-primary" id="tgVerifyQr2faBtn">VERIFY PASSWORD</button>
             <button type="button" class="tg-btn-secondary" id="tgBackToPhoneBtn2" style="margin-top: 10px; width: 100%;
             padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white;
-            cursor: pointer;">Use Phone Number</button>
+            cursor: pointer; font-size: 14px">Use Phone Number
+            </button>
         </div>
     </div>
 </div>

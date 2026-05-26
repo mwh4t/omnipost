@@ -418,7 +418,5 @@ serviceAccountKey.json
 .runtimeconfig.json
 .firebase/
 
-temp
-
 pytest.ini
 tests

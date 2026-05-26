@@ -8,25 +8,46 @@
     color: var(--text-main) !important;
     border: 1px solid var(--border-color) !important;
 }
+
 .schedule-info span, .schedule-info strong, .schedule-info p {
     color: inherit !important;
 }
 
 
-
 /* профиль */
-.profile-email { color: var(--text-main) !important; }
+.profile-email {
+    color: var(--text-main) !important;
+}
 
-.recent-post { background: var(--bg-surface) !important; color: var(--text-main) !important; }
-.post-text { color: var(--text-main) !important; }
-.post-platforms { color: var(--text-muted) !important; font-weight: normal !important; }
-.post-header { border-bottom: 2px solid var(--border-color) !important; }
+.recent-post {
+    background: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+}
+
+.post-text {
+    color: var(--text-main) !important;
+}
+
+.post-platforms {
+    color: var(--text-muted) !important;
+    font-weight: normal !important;
+}
+
+.post-header {
+    border-bottom: 2px solid var(--border-color) !important;
+}
 
 /* окно планирования */
-.schedule-info, .schedule-info p { background: var(--bg-surface) !important; color: var(--text-main) !important; }
+.schedule-info, .schedule-info p {
+    background: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+}
 
 /* футер как шапка */
-.footer { background: var(--bg-surface) !important; border-top: 1px solid var(--border-color) !important; }
+.footer {
+    background: var(--bg-surface) !important;
+    border-top: 1px solid var(--border-color) !important;
+}
 
 :root {
     --bg-main: #000000;
@@ -57,38 +78,98 @@
     color-scheme: light;
 }
 
-[data-theme="light"] .btn-profile img { filter: brightness(0) !important; }
+[data-theme="light"] .btn-profile img {
+    filter: brightness(0) !important;
+}
 
 /* глобальный сброс для чб переменных */
-body { background: var(--bg-main) !important; color: var(--text-main) !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; }
-header { background: var(--bg-surface) !important; border-bottom: 1px solid var(--border-color) !important; }
+body {
+    background: var(--bg-main) !important;
+    color: var(--text-main) !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
 
-.modal-tg-modern, .modal-content { background: var(--bg-surface) !important; color: var(--text-main) !important; border-radius: 12px !important; box-shadow: var(--shadow-modal) !important; border: 1px solid var(--border-color) !important; }
+header {
+    background: var(--bg-surface) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
 
-.dropdown-panel, .recent-post, .editor-wrapper, .social-connect-btn { background: var(--bg-surface) !important; border-radius: var(--border-radius) !important; box-shadow: var(--shadow-panel) !important; }
+.modal-tg-modern, .modal-content {
+    background: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border-radius: 12px !important;
+    box-shadow: var(--shadow-modal) !important;
+    border: 1px solid var(--border-color) !important;
+}
 
-input { background: var(--bg-surface) !important; color: var(--text-main) !important; border-radius: 8px !important; font-family: inherit !important; border: 1px solid var(--border-color); }
-textarea { background: var(--bg-surface) !important; color: var(--text-main) !important; border: none !important; border-radius: 8px !important; font-family: inherit !important; }
+.dropdown-panel, .recent-post, .editor-wrapper, .social-connect-btn {
+    background: var(--bg-surface) !important;
+    border-radius: var(--border-radius) !important;
+    box-shadow: var(--shadow-panel) !important;
+}
 
-.social-input-wrapper input { border-radius: 8px !important; }
+input {
+    background: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border-radius: 8px !important;
+    font-family: inherit !important;
+    border: 1px solid var(--border-color);
+}
+
+textarea {
+    background: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-family: inherit !important;
+}
+
+.social-input-wrapper input {
+    border-radius: 8px !important;
+}
 
 /* кнопки в стиле тг */
-button { font-family: inherit !important; transition: all 0.2s; }
-.tg-btn-primary, .btn-publish, .btn-schedule-now, .btn-schedule-later, .btn-login, .btn-register { background: var(--accent) !important; color: var(--accent-text) !important; border-radius: 10px !important; font-weight: 600 !important; border: none !important; cursor: pointer; }
-.tg-btn-primary:hover, .btn-publish:hover { opacity: 0.8 !important; }
-.btn-publish { padding: 16px !important; font-size: 16px !important; border-radius: 12px !important; }
+button {
+    font-family: inherit !important;
+    transition: all 0.2s;
+}
 
-.attach-btn, .schedule-btn, .format-btn, .social-add-btn { background: transparent !important; color: var(--text-main) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; }
-.attach-btn:hover, .schedule-btn:hover, .format-btn:hover, .social-add-btn:hover { background: var(--border-color) !important; }
+.tg-btn-primary, .btn-publish, .btn-schedule-now, .btn-schedule-later, .btn-login, .btn-register {
+    background: var(--accent) !important;
+    color: var(--accent-text) !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    border: none !important;
+    cursor: pointer;
+}
 
-.schedule-info { background: var(--bg-main) !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; color: var(--text-main) !important; }
+.tg-btn-primary:hover, .btn-publish:hover {
+    opacity: 0.8 !important;
+}
 
+.btn-publish {
+    padding: 16px !important;
+    font-size: 16px !important;
+    border-radius: 12px !important;
+}
 
+.attach-btn, .schedule-btn, .format-btn, .social-add-btn {
+    background: transparent !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px !important;
+}
 
+.attach-btn:hover, .schedule-btn:hover, .format-btn:hover, .social-add-btn:hover {
+    background: var(--border-color) !important;
+}
 
-
-
-
+.schedule-info {
+    background: var(--bg-main) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px !important;
+    color: var(--text-main) !important;
+}
 
 
 .btn-theme-toggle {
@@ -112,15 +193,19 @@ body {
     color: var(--text-main);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
+
 .social-connect-wrapper {
     border-radius: 12px;
 }
+
 .editor-wrapper {
     border-radius: 12px;
 }
+
 input, textarea, button {
     border-radius: 8px;
 }
+
 .dropdown-panel {
     border-radius: 12px;
 }
@@ -138,6 +223,8 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    max-width: 100vw;
+    overflow-x: hidden;
 }
 
 /* шапка */
@@ -1132,25 +1219,29 @@ textarea::placeholder {
 /* окно тг */
 .modal-tg-modern {
     background: #1c1c1d;
-    margin: 10% auto !important;
+    margin: 0 !important;
     border: none;
     border-radius: 12px;
     padding: 0;
     width: 90%;
     max-width: 360px;
-    position: relative;
+
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) scale(0.95);
+
     overflow: hidden;
     box-shadow: var(--shadow-modal);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: var(--text-main);
     opacity: 0;
-
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .modal.active .modal-tg-modern {
     opacity: 1;
-
+    transform: translate(-50%, -50%) scale(1) !important;
 }
 
 .modal-tg-modern .close-modal {
@@ -1474,18 +1565,23 @@ textarea::placeholder {
     border: 1px solid var(--border-color);
     padding: 18px;
     transition: all 0.2s;
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 
 .recent-post:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-panel);
 }
 
 .recent-post.scheduled {
-    border-left-width: 6px;
+    border-left-width: 1px;
+    /*border-left-color: #4673ed;*/
 }
 
 .recent-post.published {
-    border-left-width: 6px;
+    border-left-width: 1px;
+    /*border-left-color: #ffffff;*/
 }
 
 .post-header {
@@ -1702,29 +1798,35 @@ textarea::placeholder {
     .container {
         padding: 15px;
     }
+
     .header-content img#mainLogo {
         width: 50px !important;
         height: 50px !important;
     }
+
     .btn-profile img {
         width: 30px;
         height: 30px;
     }
+
     .social-section {
         flex-direction: column;
         align-items: center;
         gap: 15px;
     }
+
     .social-connect-wrapper {
         width: 100%;
         justify-content: space-between;
     }
+
     .social-connect-btn {
         flex-direction: column;
         height: auto !important;
         padding: 10px !important;
         width: 100% !important;
     }
+
     .social-input-wrapper {
         position: relative !important;
         opacity: 1 !important;
@@ -1734,50 +1836,60 @@ textarea::placeholder {
         justify-content: center;
         gap: 5px;
     }
+
     .social-input {
         width: 100% !important;
         max-width: none !important;
         text-align: center;
     }
+
     .social-input.social-group-id,
     .social-input.social-group-token {
         width: 48% !important;
     }
+
     .social-add-btn {
         width: 100%;
         border-left: 1px solid var(--border-color);
         border-radius: 8px !important;
         margin-top: 5px;
     }
+
     .list-toggle-btn {
         height: auto;
         padding: 15px;
     }
+
     textarea {
         padding: 15px;
         font-size: 14px;
         min-height: 200px;
     }
+
     .attachment-bar {
         padding: 10px 15px;
         flex-wrap: wrap;
         justify-content: center;
         gap: 10px;
     }
+
     .formatting-buttons {
         flex-wrap: wrap;
         justify-content: center;
         gap: 5px;
     }
+
     #scheduleBtn {
         width: 100%;
         margin-top: 5px;
     }
+
     .btn-publish {
         width: 100%;
         padding: 15px;
         font-size: 16px;
     }
+
     .tooltip-content {
         position: fixed;
         left: 50%;
@@ -1788,7 +1900,7 @@ textarea::placeholder {
         width: 90vw;
         max-width: 320px;
         z-index: 1200;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
 
     .recent-posts-container {
@@ -1834,6 +1946,7 @@ textarea::placeholder {
         padding: 30px 20px;
         margin: 0 !important;
     }
+
     .modal-tg-modern {
         padding: 0 !important;
     }
@@ -1864,11 +1977,13 @@ textarea::placeholder {
     gap: 10px !important;
     transition: opacity 0.2s, background 0.2s, color 0.2s !important;
 }
+
 .btn-google:hover {
     background: var(--bg-surface) !important;
     color: var(--text-main) !important;
     opacity: 0.8 !important;
 }
+
 .btn-google:hover img {
     filter: none !important;
 }
@@ -1879,18 +1994,22 @@ textarea::placeholder {
     border: none !important;
     box-shadow: var(--shadow-modal) !important;
 }
+
 .modal-tg-modern .tg-subtitle, .modal-tg-modern .tg-input-label {
     color: #87878c !important;
 }
+
 .modal-tg-modern .tg-logo-circle {
     background: transparent !important;
     border: none !important;
 }
+
 .modal-tg-modern .tg-logo-circle img {
     height: 80px !important;
     width: auto !important;
     filter: none !important;
 }
+
 .modal-tg-modern .tg-input {
     background: transparent !important;
     color: #ffffff !important;
@@ -1900,31 +2019,38 @@ textarea::placeholder {
     -webkit-appearance: none !important;
     appearance: none !important;
 }
+
 .modal-tg-modern .tg-input-wrap {
     border: none !important;
     background: #2c2c2e !important;
 }
+
 .modal-tg-modern .tg-input:focus {
     border: none !important;
     background: transparent !important;
     outline: none !important;
 }
+
 .modal-tg-modern .tg-input-wrap:focus-within {
     border: none !important;
     box-shadow: none !important;
     outline: none !important;
 }
+
 .modal-tg-modern .close-modal {
     color: #87878c !important;
 }
+
 .modal-tg-modern .close-modal:hover {
     color: #ffffff !important;
 }
+
 .modal-tg-modern .tg-btn-primary {
     background: #3390ec !important;
     color: #ffffff !important;
     border: none !important;
 }
+
 .modal-tg-modern .tg-btn-primary:hover {
     background: #2b7dd1 !important;
     color: #ffffff !important;
@@ -1943,6 +2069,7 @@ textarea::placeholder {
     border: 1px solid var(--text-main) !important;
     opacity: 1 !important;
 }
+
 .btn-schedule-now,
 .btn-schedule-later,
 .btn-login,
@@ -1953,6 +2080,7 @@ textarea::placeholder {
     border: 1px solid transparent !important;
     transition: all 0.2s !important;
 }
+
 .btn-publish {
     background: var(--text-main) !important;
     color: var(--bg-main) !important;
@@ -1964,6 +2092,7 @@ textarea::placeholder {
 .social-add-btn, .attach-btn, .format-btn, .schedule-btn, .list-toggle-btn {
     transition: all 0.2s !important;
 }
+
 .social-add-btn:hover, .attach-btn:hover, .format-btn:hover, .schedule-btn:hover, .list-toggle-btn:hover {
     background: var(--text-main) !important;
     color: var(--bg-main) !important;
@@ -1971,12 +2100,17 @@ textarea::placeholder {
     opacity: 1 !important;
     transform: none !important;
 }
+
 .list-toggle-btn {
     background: var(--bg-surface) !important;
     color: var(--text-main) !important;
 }
 
-.social-login-btn:hover { background: transparent !important; border: transparent !important; opacity: 0.7 !important; }
+.social-login-btn:hover {
+    background: transparent !important;
+    border: transparent !important;
+    opacity: 0.7 !important;
+}
 
 
 .tooltip-content {
@@ -1984,16 +2118,20 @@ textarea::placeholder {
     color: var(--text-main) !important;
     border: 1px solid var(--border-color) !important;
 }
+
 .group-item {
     color: var(--text-main) !important;
 }
+
 .group-item:hover {
     background: var(--bg-surface) !important;
     opacity: 0.9;
 }
+
 .no-groups {
     color: var(--text-muted) !important;
 }
+
 .profile-info {
     display: flex;
     flex-direction: column;
@@ -2014,46 +2152,107 @@ textarea::placeholder {
     background: transparent !important;
 }
 
-.modal-tg-modern .tg-input-wrap:focus-within { border: none !important; box-shadow: none !important; outline: none !important; }
+.modal-tg-modern .tg-input-wrap:focus-within {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
 
-.tooltip-header { color: var(--text-main) !important; border-bottom: 2px solid var(--text-main) !important; }
-.tooltip-body { color: var(--text-main) !important; }
+.tooltip-header {
+    color: var(--text-main) !important;
+    border-bottom: 2px solid var(--text-main) !important;
+}
 
-.group-item { background: var(--bg-surface) !important; color: var(--text-main) !important; border: 1px solid var(--border-color) !important; }
-.group-item:hover { background: var(--border-color) !important; color: var(--bg-main) !important; }
+.tooltip-body {
+    color: var(--text-main) !important;
+}
 
-.group-checkbox span, .group-checkbox label { color: var(--text-main) !important; }
+.group-item {
+    background: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color) !important;
+}
 
-.modal-profile .modal-content { min-height: 480px; display: flex; flex-direction: column; }
-.profile-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 30px; padding: 30px 0; }
+.group-item:hover {
+    background: var(--border-color) !important;
+    color: var(--bg-main) !important;
+}
 
-.btn-publish:hover, .btn-schedule-now:hover, .btn-schedule-later:hover, .btn-login:hover, .btn-register:hover, .btn-logout:hover, .ui-btn:hover { background: var(--text-main) !important; color: var(--bg-main) !important; border-color: var(--bg-main) !important;  }
+.group-checkbox span, .group-checkbox label {
+    color: var(--text-main) !important;
+}
 
-.social-login-btn { background: transparent !important; border: none !important; }
-.social-login-btn img { filter: none !important; box-shadow: none !important; border-radius: 0 !important; background: transparent !important; border: none !important; }
+.modal-profile .modal-content {
+    min-height: 480px;
+    display: flex;
+    flex-direction: column;
+}
 
-.social-login-btn:hover img { filter: none !important; opacity: 0.7 !important; }
+.profile-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 30px;
+    padding: 30px 0;
+}
+
+.btn-publish:hover, .btn-schedule-now:hover, .btn-schedule-later:hover, .btn-login:hover, .btn-register:hover, .btn-logout:hover, .ui-btn:hover {
+    background: var(--text-main) !important;
+    color: var(--bg-main) !important;
+    border-color: var(--bg-main) !important;
+}
+
+.social-login-btn {
+    background: transparent !important;
+    border: none !important;
+}
+
+.social-login-btn img {
+    filter: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.social-login-btn:hover img {
+    filter: none !important;
+    opacity: 0.7 !important;
+}
+
 .social-connect-btn, .social-login-btn {
     overflow: visible !important;
 }
+
 .social-hlogo {
     object-fit: contain !important;
 }
 
-.modal-profile .close-modal { color: var(--text-main) !important; }
-.modal-profile .close-modal:hover { color: var(--text-muted) !important; opacity: 1 !important; }
+.modal-profile .close-modal {
+    color: var(--text-main) !important;
+}
 
-.group-checkbox label:hover, .group-item:hover label, .group-item:hover span { color: var(--bg-main) !important;
+.modal-profile .close-modal:hover {
+    color: var(--text-muted) !important;
+    opacity: 1 !important;
+}
+
+.group-checkbox label:hover, .group-item:hover label, .group-item:hover span {
+    color: var(--bg-main) !important;
     outline: none !important;
     border: none !important;
     box-shadow: none !important;
     background: transparent !important;
 }
+
 .group-item {
     border: 1px solid var(--border-color) !important;
 }
+
 .group-item:hover {
-    background: var(--border-color) !important; color: var(--bg-main) !important;
+    background: var(--border-color) !important;
+    color: var(--bg-main) !important;
 }
 
 .btn-publish:hover, .btn-schedule-now:hover, .btn-schedule-later:hover, .btn-login:hover, .btn-register:hover, .btn-logout:hover, .ui-btn:hover {
@@ -2063,6 +2262,7 @@ textarea::placeholder {
 .modal-profile .close-modal {
     color: var(--text-main) !important;
 }
+
 .modal-profile .close-modal:hover {
     color: var(--text-muted) !important;
 }

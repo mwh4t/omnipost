@@ -403,60 +403,54 @@ class PostService:
         except Exception:
             return False
 
-    # работа с недавними постами
+    # сохранение недавнего поста
     def save_recent_post(self, uid: str, post_data: dict) -> bool:
-        import json
-        import os
-        from datetime import datetime
-
         try:
-            # путь к файлу для пользователя
-            file_path = f'temp/recent_posts_{uid}.json'
+            from datetime import datetime, timezone
 
-            # загрузка существующих путей
-            if os.path.exists(file_path):
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    recent_posts = json.load(f)
-            else:
-                recent_posts = []
-
-            # добавление нового поста в начало
+            text = post_data.get('text', '')
             new_post = {
-                'text': post_data.get('text', '')[:100] + ('...' if len(post_data.get('text', '')) > 100 else ''),
+                'uid': uid,
+                'text': text[:100] + ('...' if len(text) > 100 else ''),
                 'vk_groups': post_data.get('vk_groups', []),
                 'tg_channels': post_data.get('tg_channels', []),
                 'scheduled_time': post_data.get('scheduled_time'),
-                'created_at': datetime.now().isoformat(),
+                'created_at': datetime.now(timezone.utc).isoformat(),
                 'status': 'scheduled' if post_data.get('scheduled_time') else 'published'
             }
 
-            recent_posts.insert(0, new_post)
+            self.firebase.db.collection('recent_posts').add(new_post)
 
-            recent_posts = recent_posts[:3]
+            # оставляем только 3 последних поста пользователя
+            existing_docs = list(
+                self.firebase.db.collection('recent_posts')
+                .where('uid', '==', uid)
+                .order_by('created_at', direction='DESCENDING')
+                .stream()
+            )
 
-            # сохранение обратно
-            os.makedirs('temp', exist_ok=True)
-            with open(file_path, 'w', encoding='utf-8') as f:
-                json.dump(recent_posts, f, ensure_ascii=False, indent=2)
+            for doc in existing_docs[3:]:
+                doc.reference.delete()
 
             return True
 
         except Exception as e:
             print(f"Ошибка сохранения недавнего поста: {e}")
+            import traceback
+            traceback.print_exc()
             return False
 
+    # получение недавних постов
     def get_recent_posts(self, uid: str) -> list:
-        import json
-        import os
-
         try:
-            file_path = f'temp/recent_posts_{uid}.json'
-
-            if not os.path.exists(file_path):
-                return []
-
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
+            posts = (
+                self.firebase.db.collection('recent_posts')
+                .where('uid', '==', uid)
+                .order_by('created_at', direction='DESCENDING')
+                .limit(3)
+                .stream()
+            )
+            return [post.to_dict() for post in posts]
 
         except Exception as e:
             print(f"Ошибка получения недавних постов: {e}")
