@@ -14,7 +14,6 @@
 <p align="center">
    <strong>🌐 live demo:</strong><br>
    <a href="https://omni-post.dev">omni-post.dev</a><br>
-   <sub>⚠️ vpn required from Russia</sub>
 </p>
 
 ## tech stack
