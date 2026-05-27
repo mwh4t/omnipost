@@ -2321,3 +2321,13 @@ textarea::placeholder {
 [data-theme="light"] #mainLogo {
     filter: invert(1);
 }
+
+@supports (-webkit-touch-callout: none) {
+    .modal-schedule input[type="date"],
+    .modal-schedule input[type="time"] {
+        -webkit-appearance: none !important;
+        appearance: none !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+}

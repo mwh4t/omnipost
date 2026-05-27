@@ -825,7 +825,7 @@ document.addEventListener('DOMContentLoaded', function () {
             tgSendCodeBtn.textContent = 'SENDING...';
 
             try {
-                const response = await fetch('/api/tg-send-code/', {
+                const response = await fetch('/api/tg/send-code/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -890,7 +890,7 @@ document.addEventListener('DOMContentLoaded', function () {
             tgVerifyCodeBtn.textContent = 'PLEASE WAIT...';
 
             try {
-                const response = await fetch('/api/tg-verify-code/', {
+                const response = await fetch('/api/tg/verify-code/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -941,7 +941,7 @@ document.addEventListener('DOMContentLoaded', function () {
         tgQrBtn.addEventListener('click', async () => {
             showTgError('');
             const tgQrBtnOrigText = tgQrBtn.innerHTML;
-            tgQrBtn.innerHTML = '⌛';
+            tgQrBtn.innerHTML = '<img src="/static/images/clock.png" alt="..." style="width: 24px; height: 24px;">';
             tgQrBtn.style.pointerEvents = 'none';
 
             try {

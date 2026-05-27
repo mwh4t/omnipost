@@ -202,10 +202,10 @@ class TelegramService:
             time.sleep(0.1)
 
         if 'qr_url' not in qr_login_sessions[token]:
-            return {'success': False, 'error': 'Failed to generate QR code'}
+            return {'success': False, 'error': 'FAILED TO GENERATE QR CODE'}
 
         if qr_login_sessions[token]['status'] == 'error':
-            return {'success': False, 'error': qr_login_sessions[token].get('error', 'Unknown error')}
+            return {'success': False, 'error': qr_login_sessions[token].get('error', 'UNKNOWN ERROR')}
 
         # генерация qr
         img = qrcode.make(qr_login_sessions[token]['qr_url'])
@@ -222,7 +222,7 @@ class TelegramService:
     def check_qr_login(self, token: str) -> dict:
         session = qr_login_sessions.get(token)
         if not session:
-            return {'status': 'error', 'error': 'Сессия не найдена или истекла'}
+            return {'status': 'error', 'error': 'THE SESSION WAS NOT FOUND OR EXPIRED'}
 
         if session['status'] == 'success':
             res = {
@@ -258,7 +258,7 @@ class TelegramService:
     def qr_verify_2fa(self, token: str, password: str) -> dict:
         session = qr_login_sessions.get(token)
         if not session or session.get('status') != '2fa_required':
-            return {'success': False, 'error': 'Invalid session or token'}
+            return {'success': False, 'error': 'INVALID SESSION OR TOKEN'}
 
         session_string = session['session_string']
 

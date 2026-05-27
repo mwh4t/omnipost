@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OmniPost</title>
     <link rel="icon" type="image/png" href="{% static 'images/logo-white.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/logo-180.png' %}">
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
 </head>
 <body{% if user %} data-user-logged-in="true"{% endif %} data-theme="dark">
@@ -286,7 +287,7 @@
                 <button type="button" class="tg-btn-qr" id="tgQrBtn" title="QR Code Login" style="width: 50px; height: 50px;
                 border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); background: transparent; color: white; font-size: 24px;
                 cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; flex-shrink: 0;">
-                    📱
+                    <img src="{% static 'images/qrcode.png' %}" alt="QR" style="width: 24px; height: 24px;">
                 </button>
             </div>
             <button type="button" class="tg-btn-primary" id="tgSendCodeBtn">NEXT</button>

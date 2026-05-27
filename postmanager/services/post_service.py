@@ -109,10 +109,10 @@ class PostService:
                         success=False,
                         platform='vk',
                         group_id=group_id,
-                        error='не найден токен доступа группы'
+                        error="THE GROUP'S ACCESS TOKEN WAS NOT FOUND"
                     ))
                     results['success'] = False
-                    results['errors'].append(f"VK группа {group_id}: не найден токен доступа")
+                    results['errors'].append(f"VK GROUP {group_id}: ACCESS TOKEN WAS NOT FOUND")
                     continue
 
                 result = self.publish_to_vk(group_token, group_id, text, attachments)
@@ -120,14 +120,14 @@ class PostService:
 
                 if not result.success:
                     results['success'] = False
-                    results['errors'].append(f"VK группа {group_id}: {result.error}")
+                    results['errors'].append(f"VK GROUP {group_id}: {result.error}")
 
         # публикация в tg
         if tg_channels:
             tg_account = self.tg_service.get_account(uid)
 
             if not tg_account:
-                results['errors'].append("Telegram не подключен")
+                results['errors'].append("TELEGRAM IS NOT CONNECTED")
                 results['success'] = False
             else:
                 session_string = tg_account.get('session_string')
@@ -138,7 +138,7 @@ class PostService:
 
                     if not result.success:
                         results['success'] = False
-                        results['errors'].append(f"Telegram канал {channel_id}: {result.error}")
+                        results['errors'].append(f"TELEGRAM CHANEL {channel_id}: {result.error}")
 
         return results
 
@@ -421,7 +421,6 @@ class PostService:
 
             self.firebase.db.collection('recent_posts').add(new_post)
 
-            # оставляем только 3 последних поста пользователя
             existing_docs = list(
                 self.firebase.db.collection('recent_posts')
                 .where('uid', '==', uid)
