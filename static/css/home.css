@@ -471,6 +471,14 @@ header {
     color: var(--text-main);
 }
 
+[data-theme="dark"] .list-toggle-btn:hover img {
+    filter: invert(1);
+}
+
+[data-theme="light"] .list-toggle-btn:hover img {
+    filter: none;
+}
+
 /* выпадающий список */
 .dropdown-panel {
     display: none;
@@ -1020,7 +1028,7 @@ textarea::placeholder {
 
 .modal-content {
     background: var(--text-main);
-    padding: 40px 35px;
+    padding: 15px 35px;
     border: 1px solid var(--border-color);
     width: 100%;
     max-width: 380px;
@@ -1098,6 +1106,7 @@ textarea::placeholder {
 .input-group input {
     width: 100%;
     padding: 14px;
+    box-sizing: border-box;
     border: 1px solid var(--border-color) !important;
     background: var(--bg-surface) !important;
     color: var(--text-main) !important;
@@ -1438,6 +1447,9 @@ textarea::placeholder {
 
 .modal-schedule input[type="date"],
 .modal-schedule input[type="time"] {
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100%;
     background: var(--bg-surface) !important;
     color: var(--text-main) !important;
     border: 1px solid var(--border-color) !important;
@@ -1603,6 +1615,7 @@ textarea::placeholder {
     letter-spacing: 0.5px;
     background: var(--text-main);
     color: var(--bg-main);
+    border-radius: 6px;
 }
 
 .post-time {
@@ -1944,7 +1957,7 @@ textarea::placeholder {
         transform: translate(-50%, -50%) scale(0.9);
         width: 90vw;
         max-width: 380px;
-        padding: 30px 20px;
+        padding: 15px 20px;
         margin: 0 !important;
     }
 
@@ -2297,4 +2310,14 @@ textarea::placeholder {
     border: none !important;
     outline: none !important;
     box-shadow: none !important;
+}
+
+[data-theme="light"] .dropdown-body::-webkit-scrollbar-thumb {
+    background: #b0b0b5;
+}
+
+[data-theme="light"] .theme-img,
+[data-theme="light"] #themeIconImg,
+[data-theme="light"] #mainLogo {
+    filter: invert(1);
 }

@@ -16,7 +16,8 @@
         </a>
         <div style="display: flex; gap: 15px; align-items: center;">
             <button class="btn-theme-toggle" id="themeToggleBtn" title="Toggle Theme">
-                <span class="theme-icon">◐</span>
+                <img id="themeIconImg" src="{% static 'images/theme-white.png' %}" alt="theme"
+                     style="width: 24px; height: 24px;">
             </button>
             <button class="btn-profile" id="openProfileModal">
                 <img src="{% static 'images/profile-icon.png' %}" alt="Profile" style="width: 40px; height: 40px;">
@@ -31,7 +32,11 @@
             <div class="social-connect-btn{% if not vk_connected %} disabled{% endif %}" id="vkConnectBtn"
                  {% if not vk_connected %}style="opacity:0.5;pointer-events:none;"{% endif %}>
                 <!-- подсказка vk -->
-                <div class="tooltip-trigger" onclick="toggleTooltip('vkTooltip')">ⓘ</div>
+                <div class="tooltip-trigger" onclick="toggleTooltip('vkTooltip')">
+                    <img class="theme-img"
+                         src="{% static 'images/info-white.png' %}"
+                         style="width: 11px; height: 11px;">
+                </div>
                 <div class="tooltip-content" id="vkTooltip">
                     <div class="tooltip-header">VK Limitations</div>
                     <div class="tooltip-body">
@@ -56,7 +61,10 @@
             <button type="button" class="list-toggle-btn{% if not vk_connected %} disabled{% endif %}" id="toggleVkList"
                     title="CHOOSE GROUPS"{% if not user %}
                     style="opacity:0.5;pointer-events:none;"{% elif not vk_connected %} disabled
-                    style="opacity:0.5;pointer-events:none;"{% endif %}>☰
+                    style="opacity:0.5;pointer-events:none;"{% endif %}>
+                <img class="theme-img"
+                     src="{% static 'images/sticks-white.png' %}"
+                     style="width: 20px; height: 20px;">
             </button>
         </div>
 
@@ -64,7 +72,11 @@
             <div class="social-connect-btn{% if not tg_connected %} disabled{% endif %}" id="tgConnectBtn"
                     {% if not tg_connected %} style="opacity:0.5;pointer-events:none;"{% endif %}>
                 <!-- подсказка tg -->
-                <div class="tooltip-trigger" onclick="toggleTooltip('tgTooltip')">ⓘ</div>
+                <div class="tooltip-trigger" onclick="toggleTooltip('tgTooltip')">
+                    <img class="theme-img"
+                         src="{% static 'images/info-white.png' %}"
+                         style="width: 11px; height: 11px;">
+                </div>
                 <div class="tooltip-content" id="tgTooltip">
                     <div class="tooltip-header">Telegram Features</div>
                     <div class="tooltip-body">
@@ -84,7 +96,10 @@
             </div>
             <button type="button" class="list-toggle-btn{% if not tg_connected %} disabled{% endif %}" id="toggleTgList"
                     title="CHOOSE CHANNELS"{% if not tg_connected %}
-                    style="opacity:0.5;pointer-events:none;"{% endif %}>☰
+                    style="opacity:0.5;pointer-events:none;"{% endif %}>
+                <img class="theme-img"
+                     src="{% static 'images/sticks-white.png' %}"
+                     style="width: 20px; height: 20px;">
             </button>
         </div>
     </div>
@@ -119,7 +134,8 @@
 
             <div class="attachment-bar">
                 <button type="button" class="attach-btn" onclick="document.getElementById('fileInput').click()">
-                    &#128206; ATTACH FILE
+                    <img src="{% static 'images/clip.png' %}" alt=""
+                         style="width: 16px; height: 16px; vertical-align: middle; margin-right: 6px;"> ATTACH FILE
                 </button>
                 <input type="file" id="fileInput" class="file-input" multiple>
                 <span class="file-name" id="fileName"></span>
@@ -140,7 +156,8 @@
                 <button type="button" class="schedule-btn{% if not user %} disabled{% endif %}" id="scheduleBtn"
                         title="Запланировать публикацию"
                         {% if not user %} disabled style="opacity:0.5;pointer-events:none;"{% endif %}>
-                    &#128197;
+                    <img src="{% static 'images/calendar.png' %}" alt=""
+                         style="width: 20px; height: 20px; vertical-align: middle;">
                 </button>
             </div>
         </div>

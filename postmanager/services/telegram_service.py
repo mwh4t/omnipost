@@ -69,9 +69,6 @@ class TelegramService:
             }
 
         except Exception as e:
-            # import traceback
-            # print(f"Telegram API _send_code_async Error for {phone}: {repr(e)}")
-            # traceback.print_exc()
             return {'success': False, 'error': str(e)}
 
         finally:
@@ -106,9 +103,6 @@ class TelegramService:
                     phone_code_hash=phone_code_hash
                 )
             except Exception as e:
-                # import traceback
-                # print(f"Telegram API _sign_in_async sign_in Error for {phone}: {repr(e)}")
-                # traceback.print_exc()
                 if 'password' in str(e).lower() or 'two-step' in str(e).lower():
                     if password:
                         user = await client.sign_in(password=password)
@@ -127,9 +121,6 @@ class TelegramService:
             )
 
         except Exception as e:
-            # import traceback
-            # print(f"Telegram API _sign_in_async general Error for {phone}: {repr(e)}")
-            # traceback.print_exc()
             return TGAuthResult(success=False, error=str(e))
 
         finally:
@@ -166,8 +157,23 @@ class TelegramService:
                 await client.connect()
                 try:
                     qr = await client.qr_login()
+                    qr_login_sessions[token]['qr_obj'] = qr
                     qr_login_sessions[token]['qr_url'] = qr.url
-                    user = await qr.wait(120)
+
+                    user = None
+                    import datetime
+                    for _ in range(12):
+                        try:
+                            user = await qr.wait(10.0)
+                            break
+                        except asyncio.TimeoutError:
+                            now = datetime.datetime.now(tz=datetime.timezone.utc)
+                            if (qr.expires - now).total_seconds() < 5:
+                                await qr.recreate()
+
+                    if not user:
+                        raise Exception("Timeout")
+
                     qr_login_sessions[token]['status'] = 'success'
                     qr_login_sessions[token]['session_string'] = client.session.save()
                     qr_login_sessions[token]['user_id'] = user.id
@@ -233,7 +239,21 @@ class TelegramService:
             del qr_login_sessions[token]
             return {'status': 'error', 'error': error}
         else:
-            return {'status': 'waiting'}
+            res = {'status': 'waiting'}
+            qr_obj = session.get('qr_obj')
+            if qr_obj and hasattr(qr_obj, 'url'):
+                current_url = qr_obj.url
+                if current_url and current_url != session.get('qr_url'):
+                    session['qr_url'] = current_url
+                    import qrcode
+                    import base64
+                    from io import BytesIO
+                    img = qrcode.make(current_url)
+                    buffered = BytesIO()
+                    img.save(buffered, format="PNG")
+                    img_str = base64.b64encode(buffered.getvalue()).decode()
+                    res['qr_image'] = f"data:image/png;base64,{img_str}"
+            return res
 
     def qr_verify_2fa(self, token: str, password: str) -> dict:
         session = qr_login_sessions.get(token)
@@ -301,7 +321,7 @@ class TelegramService:
         finally:
             loop.close()
 
-    # получение каналов и групп где пользователь является администратором
+    # получение каналов, где пользователь админ
     async def _get_admin_channels_async(self, session_string: str) -> list:
         client = self._create_client(session_string)
 
@@ -313,25 +333,20 @@ class TelegramService:
 
             channels = []
 
-            # iter_dialogs возвращает все диалоги пользователя
             async for dialog in client.iter_dialogs():
                 entity = dialog.entity
 
-                # интересуют только каналы и группы (не личные чаты)
                 if not isinstance(entity, (Channel, Chat)):
                     continue
 
-                # проверяем права администратора
                 is_admin = False
 
                 if isinstance(entity, Channel):
-                    # у каналов и супергрупп проверяем creator или admin_rights
                     if getattr(entity, 'creator', False):
                         is_admin = True
                     elif getattr(entity, 'admin_rights', None):
                         is_admin = True
                 elif isinstance(entity, Chat):
-                    # для обычных групп проверяем creator или admin_rights
                     if getattr(entity, 'creator', False):
                         is_admin = True
                     elif getattr(entity, 'admin_rights', None):
@@ -340,7 +355,6 @@ class TelegramService:
                 if not is_admin:
                     continue
 
-                # формируем id в формате который принимает telethon при отправке
                 if isinstance(entity, Channel):
                     channel_id = f'-100{entity.id}'
                 else:
@@ -370,7 +384,7 @@ class TelegramService:
         finally:
             loop.close()
 
-    # публикация поста в канал/группу с поддержкой медиагрупп
+    # публикация поста в канал
     async def _publish_async(
             self,
             session_string: str,
@@ -386,7 +400,6 @@ class TelegramService:
             if not await client.is_user_authorized():
                 return {'success': False, 'error': 'не авторизован'}
 
-            # определяем entity
             if channel_id.startswith('@'):
                 entity = channel_id
             else:
@@ -397,7 +410,6 @@ class TelegramService:
 
             if attachments and len(attachments) > 0:
                 if len(attachments) == 1:
-                    # одно вложение — обычная отправка с подписью
                     message = await client.send_file(
                         entity,
                         attachments[0],
@@ -406,15 +418,12 @@ class TelegramService:
                     )
                     message_id = str(message.id)
                 else:
-                    # несколько вложений — медиагруппа (альбом)
-                    # первый файл получает подпись, остальные без
                     messages = await client.send_file(
                         entity,
                         attachments,
                         caption=text or None,
                         parse_mode='html'
                     )
-                    # send_file с несколькими файлами возвращает список
                     if isinstance(messages, list):
                         message_id = str(messages[0].id)
                     else:
@@ -455,7 +464,6 @@ class TelegramService:
 
             encrypted_session = self.crypto.encrypt(tg_data['session_string'])
 
-            # формируем словарь каналов для tg_channels
             channels = tg_data.get('channels', [])
             tg_channels = {
                 ch['id']: {'name': ch['name'], 'username': ch.get('username', '')}
@@ -496,7 +504,7 @@ class TelegramService:
         except Exception:
             return False
 
-    # получение tg аккаунта (session_string расшифровывается)
+    # получение tg аккаунта
     def get_account(self, uid: str) -> dict | None:
         try:
             doc = self.firebase.db.collection('users').document(uid).get()

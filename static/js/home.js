@@ -26,11 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateThemeUI(theme) {
-        if (themeBtn) {
-            themeBtn.querySelector('.theme-icon').textContent = theme === 'dark' ? '◑' : '◐';
-        }
         if (mainLogo) {
-            mainLogo.src = theme === 'dark' ? '/static/images/logo-white.png' : '/static/images/logo-black.png';
+            mainLogo.src = '/static/images/logo-white.png';
+        }
+        const themeIconImg = document.getElementById('themeIconImg');
+        if (themeIconImg) {
+            themeIconImg.src = '/static/images/theme-white.png';
         }
     }
 });
@@ -1042,6 +1043,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 setTimeout(() => {
                     window.location.reload();
                 }, 1000);
+            } else if (result.status === 'waiting') {
+                if (result.qr_image) {
+                    const img = document.getElementById('qrCodeImage');
+                    if (img && img.src !== result.qr_image) {
+                        img.src = result.qr_image;
+                    }
+                }
             } else if (result.status === '2fa_required') {
                 clearInterval(qrPollInterval);
                 document.getElementById('tgStepQR').style.display = 'none';
