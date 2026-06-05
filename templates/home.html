@@ -90,10 +90,12 @@
                 </div>
 
                 <img src="{% static 'images/tg-hlogo.png' %}" alt="Telegram" class="social-hlogo">
+                {% if tg_connected %}
                 <div class="social-input-wrapper">
                     <input type="text" class="social-input" placeholder="CHANNEL ID...">
                     <button type="button" class="social-add-btn">+</button>
                 </div>
+                {% endif %}
             </div>
             <button type="button" class="list-toggle-btn{% if not tg_connected %} disabled{% endif %}" id="toggleTgList"
                     title="CHOOSE CHANNELS"{% if not tg_connected %}
